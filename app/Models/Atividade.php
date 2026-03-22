@@ -1,0 +1,18 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Atividade extends Model
+{
+    use HasFactory;
+
+    protected $fillable = ['nome', 'facilitador', 'dia_semana', 'horario', 'descricao'];
+
+    public function idosos()
+    {
+        return $this->belongsToMany(Idoso::class);
+    }
+}

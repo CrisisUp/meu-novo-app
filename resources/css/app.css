@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    /* Fontes */
+    --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+
+    /* Cores Potencializadas (Alto Contraste) */
+    --color-indigo-50: var(--color-slate-100);
+    --color-indigo-100: var(--color-slate-200);
+    --color-indigo-200: var(--color-slate-300);
+    --color-indigo-300: var(--color-slate-400);
+    --color-indigo-400: var(--color-slate-500);
+    --color-indigo-500: var(--color-slate-600);
+    --color-indigo-600: #1e293b; /* Slate 800 - Azul Marinho Profundo */
+    --color-indigo-700: #0f172a; /* Slate 900 - Quase Preto */
+    --color-indigo-800: #020617;
+    --color-indigo-900: #000000;
+}
+
+@layer base {
+    html {
+        font-size: 112.5%; 
+    }
+    body {
+        /* Fundo um pouco mais "firme" */
+        @apply bg-slate-100 text-slate-900 leading-relaxed;
+    }
+}
+
+@layer components {
+    /* Layout */
+    .main-container {
+        @apply flex flex-col min-h-screen bg-slate-100;
+    }
+
+    /* Botões com Cores Sólidas e Fortes */
+    .btn-primary {
+        @apply inline-flex items-center px-6 py-3 bg-slate-900 border-2 border-slate-900 rounded-xl font-black text-sm text-white uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95;
+    }
+
+    .btn-success {
+        @apply inline-flex items-center px-6 py-3 bg-emerald-800 border-2 border-emerald-900 rounded-xl font-black text-sm text-white uppercase tracking-widest hover:bg-emerald-950 transition-all shadow-lg active:scale-95;
+    }
+
+    /* Alertas Vibrantes */
+    .alert-success {
+        @apply p-5 mb-8 text-lg text-white rounded-xl bg-emerald-700 border-2 border-emerald-900 shadow-md font-bold;
+    }
+
+    .alert-error {
+        @apply p-5 mb-8 text-lg text-white rounded-xl bg-red-700 border-2 border-red-900 shadow-md font-bold;
+    }
+
+    /* Tabela com Definição Clara */
+    .table-container {
+        @apply w-full text-lg text-left text-slate-800 bg-white shadow-xl border-2 border-slate-300 rounded-2xl overflow-hidden;
+    }
+
+    .table-header {
+        @apply text-sm text-white uppercase bg-slate-800 font-black border-b-2 border-slate-900;
+    }
+
+    .table-header-cell {
+        @apply px-8 py-5 tracking-widest;
+    }
+
+    .table-row {
+        @apply bg-white border-b-2 border-slate-100 hover:bg-emerald-50/50 transition-colors;
+    }
+
+    .table-cell {
+        @apply px-8 py-6 text-slate-900 font-bold border-r border-slate-50 last:border-r-0;
+    }
+
+    /* Badges com Cores Fortes (Sólidas) */
+    .badge {
+        @apply inline-flex items-center px-3 py-1 rounded-md text-[11px] font-black uppercase tracking-widest border-2 shadow-sm;
+    }
+    .badge-warning {
+        @apply bg-amber-400 text-amber-950 border-amber-600;
+    }
+    .badge-info {
+        @apply bg-blue-600 text-white border-blue-800;
+    }
+    .badge-success {
+        @apply bg-emerald-600 text-white border-emerald-800;
+    }
+    .badge-danger {
+        @apply bg-red-600 text-white border-red-800;
+    }
+}
+
+/* Headers e Navigation com mais peso */
+nav {
+    @apply border-b-4 border-slate-200 shadow-md;
+}
+
+header {
+    @apply border-b-2 border-slate-300;
+}

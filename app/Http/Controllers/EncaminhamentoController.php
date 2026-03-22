@@ -1,0 +1,69 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Encaminhamento;
+use App\Models\Idoso;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class EncaminhamentoController extends Controller
+{
+    /**
+     * Lista todos os encaminhamentos.
+     */
+    public function index(Request $request)
+    {
+        $search = $request->input('search');
+
+        $encaminhamentos = Encaminhamento::with(['idoso', 'profissional'])
+            ->when($search, function ($query, $search) {
+                return $query->whereHas('idoso', function ($q) use ($search) {
+                    $q->where('nome', 'like', "%{$search}%");
+                })->orWhere('instituicao_destino', 'like', "%{$search}%");
+            })
+            ->orderByDesc('data_encaminhamento')
+            ->paginate(10);
+
+        return view('encaminhamentos.index', compact('encaminhamentos', 'search'));
+    }
+
+    /**
+     * Exibe o formulário de criação para um idoso específico.
+     */
+    public function create(Request $request)
+    {
+        $idosos = Idoso::orderBy('nome')->get();
+        $idosoSelecionado = $request->input('idoso_id');
+
+        return view('encaminhamentos.create', compact('idosos', 'idosoSelecionado'));
+    }
+
+    /**
+     * Salva o encaminhamento.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'idoso_id' => 'required|exists:idosos,id',
+            'instituicao_destino' => 'required|string|max:255',
+            'especialidade' => 'nullable|string|max:255',
+            'motivo' => 'required|string',
+            'prioridade' => 'required|in:urgente,programado,rotina',
+            'data_encaminhamento' => 'required|date',
+        ]);
+
+        $data = $request->all();
+        $data['user_id'] = Auth::id();
+
+        Encaminhamento::create($data);
+
+        return redirect()->route('encaminhamento.index')->with('success', 'Encaminhamento registrado com sucesso!');
+    }
+
+    public function destroy(Encaminhamento $encaminhamento)
+    {
+        $encaminhamento->delete();
+        return redirect()->route('encaminhamento.index')->with('success', 'Registro removido.');
+    }
+}
