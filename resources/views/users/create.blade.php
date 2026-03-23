@@ -39,6 +39,16 @@
                             <x-input-error class="mt-2" :messages="$errors->get('email')" />
                         </div>
 
+                        <div>
+                            <x-input-label for="role" :value="__('Cargo/Perfil de Acesso')" />
+                            <x-select-input id="role" name="role" class="mt-1 block w-full" required>
+                                <option value="" disabled {{ old('role') ? '' : 'selected' }}>Selecione o perfil</option>
+                                <option value="funcionario" {{ old('role') == 'funcionario' ? 'selected' : '' }}>Funcionário (Leitura/Escrita)</option>
+                                <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Administrador (Acesso Total)</option>
+                            </x-select-input>
+                            <x-input-error class="mt-2" :messages="$errors->get('role')" />
+                        </div>
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <x-input-label for="password" :value="__('Senha de Acesso')" />

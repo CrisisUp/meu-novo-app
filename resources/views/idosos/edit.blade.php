@@ -81,10 +81,12 @@
                                     <x-input-label for="motivo_desligamento" :value="__('Motivo do Desligamento')" class="text-rose-800" />
                                     <x-select-input id="motivo_desligamento" name="motivo_desligamento" class="mt-1 block w-full border-rose-200 focus:border-rose-500 focus:ring-rose-500">
                                         <option value="">-- Selecione o Motivo --</option>
-                                        <option value="Falecimento" {{ old('motivo_desligamento', $idoso->motivo_desligamento) == 'Falecimento' ? 'selected' : '' }}>Falecimento</option>
-                                        <option value="Mudança de Cidade" {{ old('motivo_desligamento', $idoso->motivo_desligamento) == 'Mudança de Cidade' ? 'selected' : '' }}>Mudança de Cidade</option>
-                                        <option value="Transferência para outra Instituição" {{ old('motivo_desligamento', $idoso->motivo_desligamento) == 'Transferência para outra Instituição' ? 'selected' : '' }}>Transferência para outra Instituição</option>
-                                        <option value="Solicitação da Família" {{ old('motivo_desligamento', $idoso->motivo_desligamento) == 'Solicitação da Família' ? 'selected' : '' }}>Solicitação da Família</option>
+                                        <option value="Falecimento" {{ old('motivo_desligamento', $idoso->motivo_desligamento) == 'Falecimento' ? 'selected' : '' }}>Óbito</option>
+                                        <option value="Mudança de Cidade" {{ old('motivo_desligamento', $idoso->motivo_desligamento) == 'Mudança de Cidade' ? 'selected' : '' }}>Mudança de endereço</option>
+                                        <option value="Transferência para outra Instituição" {{ old('motivo_desligamento', $idoso->motivo_desligamento) == 'Transferência para outra Instituição' ? 'selected' : '' }}>Acolhimento institucional</option>
+                                        <option value="Solicitação da Família" {{ old('motivo_desligamento', $idoso->motivo_desligamento) == 'Solicitação da Família' ? 'selected' : '' }}>Desistência/Recusa</option>
+                                        <option value="Inviabilidade para o transporte" {{ old('motivo_desligamento', $idoso->motivo_desligamento) == 'Solicitação da Família' ? 'selected' : '' }}>Inviabilidade para o transporte</option>
+                                        <option value="Impossibilidade para o transporte" {{ old('motivo_desligamento', $idoso->motivo_desligamento) == 'Solicitação da Família' ? 'selected' : '' }}>Impossibilidade para o transporte</option>
                                         <option value="Melhora do Quadro / Autonomia" {{ old('motivo_desligamento', $idoso->motivo_desligamento) == 'Melhora do Quadro / Autonomia' ? 'selected' : '' }}>Melhora do Quadro / Autonomia</option>
                                         <option value="Outros" {{ old('motivo_desligamento', $idoso->motivo_desligamento) == 'Outros' ? 'selected' : '' }}>Outros</option>
                                     </x-select-input>
@@ -96,7 +98,7 @@
                         <!-- Dados Pessoais -->
                         <div class="pt-8 border-t border-slate-100">
                             <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Dados Pessoais</h3>
-                            
+
                             <div class="mb-6 flex items-center space-x-6">
                                 <div class="shrink-0">
                                     @if($idoso->foto)

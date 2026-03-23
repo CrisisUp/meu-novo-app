@@ -16,7 +16,7 @@ class DashboardController extends Controller
     public function welcome()
     {
         $totalUsers = User::count();
-        $totalIdosos = Idoso::count();
+        $totalIdosos = Idoso::whereNull('data_desligamento')->count();
         
         return view('welcome', compact('totalUsers', 'totalIdosos'));
     }

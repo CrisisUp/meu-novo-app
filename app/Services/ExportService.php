@@ -81,11 +81,15 @@ class ExportService
         // Adiciona o BOM para o Excel abrir corretamente em UTF-8
         fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF)); 
         
-        fputcsv($handle, ['ID', 'Nome', 'CPF', 'NIS', 'Sexo', 'Dependência', 'Data Nascimento', 'Idade', 'Responsável', 'Telefone', 'Medicamentos', 'Alergias']);
+        fputcsv($handle, ['ID', 'Registro', 'Status', 'Data Desligamento', 'Motivo', 'Nome', 'CPF', 'NIS', 'Sexo', 'Dependência', 'Data Nascimento', 'Idade', 'Responsável', 'Telefone', 'Medicamentos', 'Alergias']);
 
         foreach ($idosos as $idoso) {
             fputcsv($handle, [
                 $idoso->id,
+                $idoso->codigo_registro,
+                $idoso->data_desligamento ? 'DESLIGADO' : 'ATIVO',
+                $idoso->data_desligamento ?? '-',
+                $idoso->motivo_desligamento ?? '-',
                 $idoso->nome,
                 $idoso->cpf_masked,
                 $idoso->nis_masked,

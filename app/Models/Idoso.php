@@ -44,8 +44,6 @@ class Idoso extends Model
             'trans_f' => 'Transgênero Feminino',
             'agenero' => 'Agênero',
             'nao_declarado' => 'Não declarado',
-            'M' => 'Masculino', // Legado
-            'F' => 'Feminino',  // Legado
             default => $this->sexo
         };
     }
@@ -114,8 +112,22 @@ class Idoso extends Model
     public function scopeFiltered($query, $search = null, $filtro = null)
     {
         return $query->when($search, function ($query, $search) {
-                return $query->where('nome', 'like', "%{$search}%")
-                             ->orWhere('cpf', 'like', "%{$search}%");
+                return $query->where(function($q) use ($search) {
+                    $q->where('nome', 'like', "%{$search}%")
+                      ->orWhere('cpf', 'like', "%{$search}%");
+                });
+            })
+            // Filtro de Status (Ativos por padrão se não for 'desligados' ou 'todos')
+            ->when($filtro == 'desligados', function ($query) {
+                return $query->whereNotNull('data_desligamento');
+            })
+            ->when($filtro == 'todos', function ($query) {
+                // Não aplica filtro de data_desligamento
+            }, function ($query) use ($filtro) {
+                // Comportamento padrão: apenas ativos
+                if ($filtro != 'desligados') {
+                    $query->whereNull('data_desligamento');
+                }
             })
             ->when($filtro == 'sem_cpf', function ($query) {
                 return $query->whereNull('cpf')->orWhere('cpf', '');

@@ -59,9 +59,21 @@
                             <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mr-2">Status:</span>
                             
                             <a href="{{ route('idoso.index', ['search' => $search]) }}" 
-                                class="px-3 py-1 text-xs font-bold rounded-full border {{ !$filtro ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400' }} transition-all">
+                                class="px-3 py-1 text-xs font-bold rounded-full border {{ !$filtro ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-600' }} transition-all">
+                                Ativos
+                            </a>
+
+                            <a href="{{ route('idoso.index', ['search' => $search, 'filtro' => 'desligados']) }}" 
+                                class="px-3 py-1 text-xs font-bold rounded-full border {{ $filtro == 'desligados' ? 'bg-rose-600 text-white border-rose-600' : 'bg-white text-slate-600 border-slate-200 hover:border-rose-600' }} transition-all">
+                                Desligados
+                            </a>
+
+                            <a href="{{ route('idoso.index', ['search' => $search, 'filtro' => 'todos']) }}" 
+                                class="px-3 py-1 text-xs font-bold rounded-full border {{ $filtro == 'todos' ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-800' }} transition-all">
                                 Todos
                             </a>
+
+                            <div class="h-4 w-px bg-slate-200 mx-2"></div>
 
                             <a href="{{ route('idoso.index', ['search' => $search, 'filtro' => 'sem_cpf']) }}" 
                                 class="px-3 py-1 text-xs font-bold rounded-full border {{ $filtro == 'sem_cpf' ? 'bg-amber-100 text-amber-800 border-amber-300 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-amber-300' }} transition-all">
@@ -121,7 +133,7 @@
                         </thead>
                         <tbody>
                             @forelse ($idosos as $idoso)
-                                <tr class="table-row">
+                                <tr class="table-row {{ $idoso->data_desligamento ? 'bg-rose-50/30' : '' }}">
                                     <td class="table-cell">
                                         <span class="text-xs font-black text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
                                             {{ $idoso->codigo_registro }}
@@ -131,19 +143,25 @@
                                         <div class="flex items-center">
                                             <div class="h-12 w-12 flex-shrink-0 rounded-xl overflow-hidden bg-slate-100 flex items-center justify-center text-slate-400 mr-4 border border-slate-200 shadow-sm">
                                                 @if($idoso->foto)
-                                                    <img src="{{ asset('storage/' . $idoso->foto) }}" class="h-full w-full object-cover">
+                                                    <img src="{{ asset('storage/' . $idoso->foto) }}" class="h-full w-full object-cover {{ $idoso->data_desligamento ? 'grayscale' : '' }}">
                                                 @else
                                                     <span class="text-xl font-black text-slate-600">{{ strtoupper(substr($idoso->nome, 0, 1)) }}</span>
                                                 @endif
                                             </div>
                                             <div class="flex flex-col">
-                                                <div class="text-xl font-black text-slate-900 leading-tight">{{ $idoso->nome }}</div>
+                                                <div class="text-xl font-black {{ $idoso->data_desligamento ? 'text-slate-500 line-through' : 'text-slate-900' }} leading-tight">
+                                                    {{ $idoso->nome }}
+                                                </div>
                                                 <div class="flex mt-2 space-x-2">
-                                                @if(!$idoso->cpf)
-                                                    <span class="badge badge-warning">CPF PENDENTE</span>
-                                                @endif
-                                                @if($idoso->medicamentos)
-                                                    <span class="badge badge-info">Uso de Medicação</span>
+                                                @if($idoso->data_desligamento)
+                                                    <span class="badge bg-rose-100 text-rose-800 border-rose-200 font-black">DESLIGADO: {{ $idoso->motivo_desligamento }}</span>
+                                                @else
+                                                    @if(!$idoso->cpf)
+                                                        <span class="badge badge-warning">CPF PENDENTE</span>
+                                                    @endif
+                                                    @if($idoso->medicamentos)
+                                                        <span class="badge badge-info">Uso de Medicação</span>
+                                                    @endif
                                                 @endif
                                             </div>
                                         </div>

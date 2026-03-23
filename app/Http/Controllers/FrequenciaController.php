@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\FrequenciaRequest;
 use App\Models\Frequencia;
 use App\Models\Idoso;
 use Illuminate\Http\Request;
@@ -17,8 +18,7 @@ class FrequenciaController extends Controller
     {
         $data = $request->input('data', Carbon::today()->toDateString());
         
-        // Busca todos os idosos e suas frequências para o dia selecionado
-        $idosos = Idoso::orderBy('nome')->get();
+        $idosos = Idoso::whereNull('data_desligamento')->orderBy('nome')->get();
         
         $frequencias = Frequencia::where('data', $data)->get()->keyBy('idoso_id');
 
@@ -28,15 +28,15 @@ class FrequenciaController extends Controller
     /**
      * Salva a frequência em lote de forma otimizada.
      */
-    public function store(Request $request)
+    public function store(FrequenciaRequest $request)
     {
-        $data = $request->input('data');
-        $presencas = $request->input('presencas', []); 
-        $observacoes = $request->input('observacoes', []);
+        $validated = $request->validated();
+        $data = $validated['data'];
+        $presencas = $validated['presencas'] ?? []; 
+        $observacoes = $validated['observacoes'] ?? [];
         $now = now();
         $authId = Auth::id();
 
-        // Buscamos apenas os IDs para otimizar memória
         $idosoIds = Idoso::pluck('id');
 
         $upsertData = $idosoIds->map(function ($id) use ($data, $presencas, $observacoes, $now, $authId) {
@@ -51,8 +51,6 @@ class FrequenciaController extends Controller
             ];
         })->toArray();
 
-        // O Upsert utiliza a constraint unique(['idoso_id', 'data']) definida na migration
-        // e atualiza apenas os campos especificados se o registro já existir.
         Frequencia::upsert(
             $upsertData, 
             ['idoso_id', 'data'], 

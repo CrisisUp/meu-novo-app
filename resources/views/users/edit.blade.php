@@ -32,6 +32,15 @@
                             <x-input-error class="mt-2" :messages="$errors->get('email')" />
                         </div>
 
+                        <div>
+                            <x-input-label for="role" :value="__('Cargo/Perfil de Acesso')" />
+                            <x-select-input id="role" name="role" class="mt-1 block w-full" required>
+                                <option value="funcionario" {{ old('role', $user->role) == 'funcionario' ? 'selected' : '' }}>Funcionário (Leitura/Escrita)</option>
+                                <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Administrador (Acesso Total)</option>
+                            </x-select-input>
+                            <x-input-error class="mt-2" :messages="$errors->get('role')" />
+                        </div>
+
                         <div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
                             <h3 class="text-sm font-medium text-gray-900 mb-4 uppercase tracking-wider">Alterar Senha (Opcional)</h3>
                             

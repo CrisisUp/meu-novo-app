@@ -8,6 +8,8 @@ use App\Http\Controllers\IdosoController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\RelatorioMovimentacaoController;
+use App\Http\Controllers\ActivityLogController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'welcome'])->name('dashboard');
@@ -16,8 +18,6 @@ Route::get('/', [DashboardController::class, 'welcome'])->name('dashboard');
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('home');
-
-use App\Http\Controllers\RelatorioMovimentacaoController;
 
 // Agrupamento de rotas protegidas
 Route::middleware('auth')->group(function () {
@@ -72,7 +72,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/equipe/{user}/destroy', [UserController::class, 'destroy'])->name('user.destroy');
 
         // Logs de Auditoria
-        Route::get('/admin/logs', [\App\Http\Controllers\ActivityLogController::class, 'index'])->name('admin.logs.index');
+        Route::get('/admin/logs', [ActivityLogController::class, 'index'])->name('admin.logs.index');
     });
 
     // Rotas de Perfil (Breeze)

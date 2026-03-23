@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\EncaminhamentoRequest;
 use App\Models\Encaminhamento;
 use App\Models\Idoso;
 use Illuminate\Http\Request;
@@ -33,7 +34,7 @@ class EncaminhamentoController extends Controller
      */
     public function create(Request $request)
     {
-        $idosos = Idoso::orderBy('nome')->get();
+        $idosos = Idoso::whereNull('data_desligamento')->orderBy('nome')->get();
         $idosoSelecionado = $request->input('idoso_id');
 
         return view('encaminhamentos.create', compact('idosos', 'idosoSelecionado'));
@@ -42,18 +43,9 @@ class EncaminhamentoController extends Controller
     /**
      * Salva o encaminhamento.
      */
-    public function store(Request $request)
+    public function store(EncaminhamentoRequest $request)
     {
-        $request->validate([
-            'idoso_id' => 'required|exists:idosos,id',
-            'instituicao_destino' => 'required|string|max:255',
-            'especialidade' => 'nullable|string|max:255',
-            'motivo' => 'required|string',
-            'prioridade' => 'required|in:urgente,programado,rotina',
-            'data_encaminhamento' => 'required|date',
-        ]);
-
-        $data = $request->all();
+        $data = $request->validated();
         $data['user_id'] = Auth::id();
 
         Encaminhamento::create($data);

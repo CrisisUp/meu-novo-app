@@ -9,16 +9,25 @@
 
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-slate-800 leading-tight">
-                {{ __('Prontuário: ') }} {{ $idoso->nome }}
-            </h2>
+            <div class="flex items-center space-x-4">
+                <h2 class="font-semibold text-xl text-slate-800 leading-tight">
+                    {{ __('Prontuário: ') }} {{ $idoso->nome }}
+                </h2>
+                @if($idoso->data_desligamento)
+                    <span class="px-3 py-1 bg-rose-600 text-white text-[10px] font-black uppercase rounded-full shadow-sm animate-pulse">
+                        Cadastro Desligado
+                    </span>
+                @endif
+            </div>
             <div class="flex space-x-3">
-                <a href="{{ route('encaminhamento.create', ['idoso_id' => $idoso->id]) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:outline-none transition ease-in-out duration-150 shadow-sm">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                    Encaminhar Idoso
-                </a>
+                @if(!$idoso->data_desligamento)
+                    <a href="{{ route('encaminhamento.create', ['idoso_id' => $idoso->id]) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:outline-none transition ease-in-out duration-150 shadow-sm">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Encaminhar Idoso
+                    </a>
+                @endif
                 <button onclick="window.print()" class="inline-flex items-center px-4 py-2 bg-slate-100 border border-slate-200 rounded-md font-semibold text-xs text-slate-700 uppercase tracking-widest hover:bg-slate-200 focus:outline-none transition ease-in-out duration-150 shadow-sm">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -30,7 +39,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
-                    Visualizar Relatório Mensal
+                    Visualizar Relatório
                 </a>
                 <a href="{{ route('idoso.edit', $idoso) }}" class="inline-flex items-center px-4 py-2 bg-slate-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-slate-900 focus:outline-none transition ease-in-out duration-150 shadow-sm">
                     Editar Cadastro
@@ -45,6 +54,25 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
+            @if($idoso->data_desligamento)
+                <div class="bg-rose-50 border-l-4 border-rose-500 p-6 mb-8 rounded-xl shadow-sm">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <svg class="h-8 w-8 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-black text-rose-800 uppercase tracking-tight">Registro de Desligamento</h3>
+                            <div class="mt-1 text-rose-700 font-medium">
+                                <p>Este idoso foi desligado da instituição em <strong>{{ \Carbon\Carbon::parse($idoso->data_desligamento)->format('d/m/Y') }}</strong>.</p>
+                                <p class="mt-1 text-sm">Motivo: <span class="uppercase font-black">{{ $idoso->motivo_desligamento }}</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- Cabeçalho Exclusivo para Impressão -->
             <div class="hidden print:block text-center border-b-2 border-slate-800 pb-6 mb-8">
                 <h1 class="text-2xl font-bold text-slate-900 uppercase">Gestão CDI - Centro de Dia para Idosos</h1>
@@ -60,14 +88,14 @@
                         <div class="flex flex-col items-center text-center mb-6">
                             <div class="h-32 w-32 rounded-full overflow-hidden border-4 border-white shadow-md mb-4 bg-slate-100 flex items-center justify-center text-slate-400">
                                 @if($idoso->foto)
-                                    <img src="{{ asset('storage/' . $idoso->foto) }}" class="h-full w-full object-cover" alt="{{ $idoso->nome }}">
+                                    <img src="{{ asset('storage/' . $idoso->foto) }}" class="h-full w-full object-cover {{ $idoso->data_desligamento ? 'grayscale' : '' }}" alt="{{ $idoso->nome }}">
                                 @else
                                     <span class="text-4xl font-bold">{{ strtoupper(substr($idoso->nome, 0, 1)) }}</span>
                                 @endif
                             </div>
                             <h3 class="text-lg font-bold text-slate-800">{{ $idoso->nome }}</h3>
                             <p class="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100 mt-2">{{ $idoso->codigo_registro }}</p>
-                            <p class="text-sm text-slate-400 font-medium mt-2">{{ \Carbon\Carbon::parse($idoso->data_nascimento)->age }} anos</p>
+                            <p class="text-sm text-slate-400 font-medium mt-2">{{ $idoso->idade }} anos</p>
                             
                             <div class="mt-4 flex flex-col gap-2">
                                 <div>
@@ -86,6 +114,10 @@
                         </div>
                         
                         <div class="space-y-4 border-t border-slate-50 pt-6">
+                            <div>
+                                <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Data de Admissão</span>
+                                <span class="text-sm text-slate-700 font-medium">{{ \Carbon\Carbon::parse($idoso->data_admissao)->format('d/m/Y') }}</span>
+                            </div>
                             <div>
                                 <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Data de Nasc.</span>
                                 <span class="text-sm text-slate-700 font-medium">{{ \Carbon\Carbon::parse($idoso->data_nascimento)->format('d/m/Y') }}</span>
@@ -111,7 +143,7 @@
                 </div>
 
                 <!-- Coluna Principal: Saúde e Obs -->
-...
+                <div class="md:col-span-2 space-y-8">
                     <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-200">
                         <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6 flex items-center">
                             <svg class="w-4 h-4 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -159,9 +191,6 @@
                                     <div class="absolute -left-[9px] top-0 h-4 w-4 rounded-full bg-slate-200 border-2 border-white"></div>
                                     <div class="mb-1 text-xs font-bold text-slate-400 uppercase flex justify-between">
                                         <span>{{ \Carbon\Carbon::parse($intercorrencia->data)->format('d/m/Y') }}</span>
-                                        @if($intercorrencia->profissional)
-                                            <span class="text-[10px] text-slate-300">Anotado por: {{ $intercorrencia->profissional->name }}</span>
-                                        @endif
                                     </div>
                                     <div class="text-sm text-slate-700 bg-slate-50 p-3 rounded-lg border border-slate-100">
                                         {{ $intercorrencia->observacoes }}
@@ -197,9 +226,6 @@
                                         <span class="text-xs font-mono text-slate-400">{{ \Carbon\Carbon::parse($enc->data_encaminhamento)->format('d/m/Y') }}</span>
                                     </div>
                                     <p class="text-xs text-slate-600 leading-relaxed">{{ $enc->motivo }}</p>
-                                    <div class="mt-2 text-[10px] text-slate-400 italic">
-                                        Registrado por: {{ $enc->profissional->name ?? 'Sistema' }}
-                                    </div>
                                 </div>
                             @empty
                                 <div class="text-center py-6 text-slate-400 text-sm italic">
@@ -209,12 +235,12 @@
                         </div>
                     </div>
 
-                    <div class="flex justify-end">
+                    <div class="flex justify-end pt-8">
                         <form action="{{ route('idoso.destroy', $idoso) }}" method="POST" onsubmit="return confirm('ATENÇÃO: Deseja realmente excluir permanentemente este cadastro?')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="text-red-400 hover:text-red-600 text-xs font-bold uppercase tracking-widest transition-colors">
-                                Excluir Prontuário
+                                Excluir Prontuário Permanentemente
                             </button>
                         </form>
                     </div>

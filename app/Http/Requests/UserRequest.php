@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UserRequest extends FormRequest
 {
@@ -17,27 +17,44 @@ class UserRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
-        return [
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6'
+        $rules = [
+            'name' => 'required|string|max:255',
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                $this->user ? Rule::unique('users')->ignore($this->user->id) : Rule::unique('users'),
+            ],
+            'role' => 'required|in:admin,funcionario',
         ];
+
+        if ($this->isMethod('POST')) {
+            $rules['password'] = 'required|string|min:6|confirmed';
+        } else {
+            $rules['password'] = 'nullable|string|min:6|confirmed';
+        }
+
+        return $rules;
     }
 
+    /**
+     * Get the error messages for the defined validation rules.
+     */
     public function messages(): array
     {
         return [
-            'name.required' => "Campo nome é obrigatório!",
-            'email.required' => "Campo e-mail é obrigatório!",
-            'email.email' => "Necessário enviar e-mail válido!",
-            'email.unique' => "O e-mail já está cadastrado!",
-            'password.required' => "Campo senha é obrigatório!",
-            'password.min' => "Senha com no mínimo :min caracteres!",
+            'name.required' => "O nome é obrigatório!",
+            'email.required' => "O e-mail é obrigatório!",
+            'email.email' => "O e-mail deve ser válido!",
+            'email.unique' => "Este e-mail já está em uso!",
+            'role.required' => "O cargo/perfil é obrigatório!",
+            'role.in' => "Selecione um perfil válido!",
+            'password.required' => "A senha é obrigatória para novos usuários!",
+            'password.min' => "A senha deve ter no mínimo :min caracteres!",
+            'password.confirmed' => "A confirmação da senha não confere!",
         ];
     }
 }

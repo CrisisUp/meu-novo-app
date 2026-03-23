@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AtividadeRequest;
 use App\Models\Atividade;
 use App\Models\Idoso;
 use Illuminate\Http\Request;
@@ -19,17 +20,11 @@ class AtividadeController extends Controller
         return view('atividades.create');
     }
 
-    public function store(Request $request)
+    public function store(AtividadeRequest $request)
     {
-        $request->validate([
-            'nome' => 'required|string|max:255',
-            'dia_semana' => 'required',
-            'horario' => 'required',
-        ]);
+        Atividade::create($request->validated());
 
-        Atividade::create($request->all());
-
-        return redirect()->route('atividade.index')->with('success', 'Atividade criada!');
+        return redirect()->route('atividade.index')->with('success', 'Atividade criada com sucesso!');
     }
 
     public function show(Atividade $atividade)
@@ -45,9 +40,12 @@ class AtividadeController extends Controller
 
     public function vincularIdoso(Request $request, Atividade $atividade)
     {
-        $request->validate(['idoso_id' => 'required|exists:idosos,id']);
+        $request->validate([
+            'idoso_id' => 'required|exists:idosos,id,data_desligamento,NULL'
+        ], [
+            'idoso_id.exists' => 'Este idoso está desligado ou não existe e não pode ser vinculado a novas atividades.'
+        ]);
         
-        // Utiliza syncWithoutDetaching para evitar erros de duplicidade se o idoso já estiver vinculado
         $atividade->idosos()->syncWithoutDetaching([$request->idoso_id]);
         
         return back()->with('success', 'Idoso vinculado à atividade!');
@@ -62,6 +60,6 @@ class AtividadeController extends Controller
     public function destroy(Atividade $atividade)
     {
         $atividade->delete();
-        return redirect()->route('atividade.index')->with('success', 'Atividade excluída.');
+        return redirect()->route('atividade.index')->with('success', 'Atividade excluída com sucesso!');
     }
 }

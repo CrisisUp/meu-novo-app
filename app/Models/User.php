@@ -47,4 +47,15 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Scope para filtrar usuários por nome ou e-mail.
+     */
+    public function scopeFiltered($query, $search = null)
+    {
+        return $query->when($search, function ($query, $search) {
+            return $query->where('name', 'like', "%{$search}%")
+                         ->orWhere('email', 'like', "%{$search}%");
+        });
+    }
 }

@@ -35,7 +35,7 @@
 
                             <div>
                                 <x-input-label for="dia_semana" :value="__('Dia da Semana')" />
-                                <select name="dia_semana" id="dia_semana" class="mt-1 block w-full border-slate-200 focus:border-slate-500 focus:ring-slate-500 rounded-lg shadow-sm text-slate-600" required>
+                                <x-select-input name="dia_semana" id="dia_semana" class="mt-1 block w-full" required>
                                     <option value="segunda">Segunda-feira</option>
                                     <option value="terca">Terça-feira</option>
                                     <option value="quarta">Quarta-feira</option>
@@ -43,7 +43,7 @@
                                     <option value="sexta">Sexta-feira</option>
                                     <option value="sabado">Sábado</option>
                                     <option value="domingo">Domingo</option>
-                                </select>
+                                </x-select-input>
                                 <x-input-error class="mt-2" :messages="$errors->get('dia_semana')" />
                             </div>
                         </div>
