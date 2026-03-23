@@ -5,18 +5,18 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
 use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
     // carregar o formulario "cadastrar novo usuário"
     public function create()
     {
-        // Carregar a VIEW
-        // dd("Formulário");
         return view('users.create');
     }
 
-    public function store(UserRequest $request)
+    public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -25,17 +25,20 @@ class UserController extends Controller
             'role' => 'required|in:admin,funcionario',
         ]);
 
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => $request->password,
-            'role' => $request->role,
-        ]);
+        // Criamos o usuário sem o role primeiro (fillable)
+        $user = new User();
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password);
+        
+        // Atribuímos o role manualmente (seguro, pois este método é protegido pelo middleware admin-access)
+        $user->role = $request->role;
+        $user->save();
 
         return redirect()->route('user.index')->with('success', 'Usuário cadastrado com sucesso!');
     }
 
-    public function index(\Illuminate\Http\Request $request)
+    public function index(Request $request)
     {
         $search = $request->input('search');
 
@@ -45,47 +48,46 @@ class UserController extends Controller
         })
         ->orderByDesc('id')
         ->paginate(10)
-        ->withQueryString(); // Mantém o termo de busca ao trocar de página
+        ->withQueryString(); 
 
         return view('users.index', compact('users', 'search'));
     }
-
 
     public function edit(User $user)
     {
         return view('users.edit', compact('user'));
     }
 
-    public function update(UserRequest $request, User $user)
+    public function update(Request $request, User $user)
     {
-        // 1. Validação personalizada para edição
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'password' => 'nullable|min:6|confirmed', // Senha opcional na edição
+            'password' => 'nullable|min:6|confirmed',
             'role' => 'required|in:admin,funcionario',
         ]);
 
-        // 2. Preparar os dados para atualizar
-        $data = [
-            'name' => $request->name,
-            'email' => $request->email,
-            'role' => $request->role,
-        ];
-
-        // Se a senha foi preenchida, adiciona aos dados
+        $user->name = $request->name;
+        $user->email = $request->email;
+        
         if ($request->filled('password')) {
-            $data['password'] = $request->password;
+            $user->password = Hash::make($request->password);
         }
 
-        // 3. Atualizar no banco
-        $user->update($data);
+        // Atribuição manual para contornar o bloqueio do fillable
+        $user->role = $request->role;
+        $user->save();
 
         return redirect()->route('user.index')->with('success', 'Usuário atualizado com sucesso!');
     }
 
     public function destroy(User $user)
     {
+        // Impedir que o administrador exclua a si próprio
+        if (auth()->id() === $user->id) {
+            return back()->with('error', 'Você não pode excluir sua própria conta administrativa.');
+        }
+
         $user->delete();
         return redirect()->route('user.index')->with('success', 'Usuário excluído com sucesso!');
     }

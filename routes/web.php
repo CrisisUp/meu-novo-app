@@ -17,8 +17,14 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('home');
 
+use App\Http\Controllers\RelatorioMovimentacaoController;
+
 // Agrupamento de rotas protegidas
 Route::middleware('auth')->group(function () {
+    // Relatórios de Movimentação (Controle Social)
+    Route::get('/relatorios/movimentacao', [RelatorioMovimentacaoController::class, 'index'])->name('relatorios.movimentacao');
+    Route::get('/relatorios/movimentacao/pdf', [RelatorioMovimentacaoController::class, 'exportarPdf'])->name('relatorios.movimentacao.pdf');
+
     // Rotas de Idosos (Novo Módulo)
     Route::get('/idosos/exportar-csv', [IdosoController::class, 'exportarCsv'])->name('idoso.exportar-csv');
     Route::get('/idosos', [IdosoController::class, 'index'])->name('idoso.index');
@@ -64,6 +70,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/equipe/{user}/edit', [UserController::class, 'edit'])->name('user.edit');
         Route::put('/equipe/{user}/update', [UserController::class, 'update'])->name('user.update');
         Route::delete('/equipe/{user}/destroy', [UserController::class, 'destroy'])->name('user.destroy');
+
+        // Logs de Auditoria
+        Route::get('/admin/logs', [\App\Http\Controllers\ActivityLogController::class, 'index'])->name('admin.logs.index');
     });
 
     // Rotas de Perfil (Breeze)

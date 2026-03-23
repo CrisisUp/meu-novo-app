@@ -35,9 +35,10 @@ class AtividadeController extends Controller
     public function show(Atividade $atividade)
     {
         $atividade->load('idosos');
-        $idososDisponiveis = Idoso::whereDoesntHave('atividades', function($q) use($atividade) {
-            $q->where('atividade_id', $atividade->id);
-        })->orderBy('nome')->get();
+        $idososDisponiveis = Idoso::whereNull('data_desligamento')
+            ->whereDoesntHave('atividades', function($q) use($atividade) {
+                $q->where('atividade_id', $atividade->id);
+            })->orderBy('nome')->get();
 
         return view('atividades.show', compact('atividade', 'idososDisponiveis'));
     }
@@ -45,7 +46,10 @@ class AtividadeController extends Controller
     public function vincularIdoso(Request $request, Atividade $atividade)
     {
         $request->validate(['idoso_id' => 'required|exists:idosos,id']);
-        $atividade->idosos()->attach($request->idoso_id);
+        
+        // Utiliza syncWithoutDetaching para evitar erros de duplicidade se o idoso já estiver vinculado
+        $atividade->idosos()->syncWithoutDetaching([$request->idoso_id]);
+        
         return back()->with('success', 'Idoso vinculado à atividade!');
     }
 

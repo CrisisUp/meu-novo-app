@@ -20,7 +20,7 @@ class PresencaEquipeController extends Controller
 
     public function registrarEntrada(Request $request)
     {
-        PresencaEquipe::updateOrCreate(
+        $presenca = PresencaEquipe::firstOrCreate(
             [
                 'user_id' => Auth::id(),
                 'data' => Carbon::today()->toDateString(),
@@ -29,6 +29,10 @@ class PresencaEquipeController extends Controller
                 'entrada' => Carbon::now()->toTimeString(),
             ]
         );
+
+        if (!$presenca->wasRecentlyCreated) {
+            return back()->with('error', 'Você já registrou sua entrada hoje às ' . $presenca->entrada);
+        }
 
         return back()->with('success', 'Entrada registrada com sucesso!');
     }
@@ -39,14 +43,19 @@ class PresencaEquipeController extends Controller
             ->where('data', Carbon::today()->toDateString())
             ->first();
 
-        if ($presenca) {
-            $presenca->update([
-                'saida' => Carbon::now()->toTimeString(),
-            ]);
-            return back()->with('success', 'Saída registrada com sucesso!');
+        if (!$presenca) {
+            return back()->with('error', 'Registro de entrada não encontrado para hoje.');
         }
 
-        return back()->with('error', 'Registro de entrada não encontrado para hoje.');
+        if ($presenca->saida) {
+            return back()->with('error', 'Você já registrou sua saída hoje às ' . $presenca->saida);
+        }
+
+        $presenca->update([
+            'saida' => Carbon::now()->toTimeString(),
+        ]);
+
+        return back()->with('success', 'Saída registrada com sucesso!');
     }
 
     /**

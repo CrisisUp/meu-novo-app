@@ -42,10 +42,78 @@
                                     <x-input-error class="mt-2" :messages="$errors->get('nome')" />
                                 </div>
                                 <div>
+                                    <x-input-label for="sexo" :value="__('Sexo / Identidade de Gênero')" />
+                                    <x-select-input id="sexo" name="sexo" class="mt-1 block w-full" required>
+                                        <option value="cis_f" {{ old('sexo') == 'cis_f' ? 'selected' : '' }}>Cisgênero Feminino</option>
+                                        <option value="cis_m" {{ old('sexo') == 'cis_m' ? 'selected' : '' }}>Cisgênero Masculino</option>
+                                        <option value="trans_f" {{ old('sexo') == 'trans_f' ? 'selected' : '' }}>Transgênero Feminino</option>
+                                        <option value="trans_m" {{ old('sexo') == 'trans_m' ? 'selected' : '' }}>Transgênero Masculino</option>
+                                        <option value="agenero" {{ old('sexo') == 'agenero' ? 'selected' : '' }}>Agênero</option>
+                                        <option value="nao_declarado" {{ old('sexo') == 'nao_declarado' ? 'selected' : '' }}>Não declarado</option>
+                                    </x-select-input>
+                                    <x-input-error class="mt-2" :messages="$errors->get('sexo')" />
+                                </div>
+                                <div>
+                                    <x-input-label for="grau_dependencia" :value="__('Grau de Dependência')" />
+                                    <x-select-input id="grau_dependencia" name="grau_dependencia" class="mt-1 block w-full" required>
+                                        <option value="I" {{ old('grau_dependencia') == 'I' ? 'selected' : '' }}>Grau I (Independente)</option>
+                                        <option value="II" {{ old('grau_dependencia') == 'II' ? 'selected' : '' }}>Grau II (Dependência Leve/Moderada)</option>
+                                        <option value="III" {{ old('grau_dependencia') == 'III' ? 'selected' : '' }}>Grau III (Dependência Grave/Total)</option>
+                                    </x-select-input>
+                                    <x-input-error class="mt-2" :messages="$errors->get('grau_dependencia')" />
+                                </div>
+                                <div>
                                     <x-input-label for="data_nascimento" :value="__('Data de Nascimento')" />
-                                    <x-text-input id="data_nascimento" name="data_nascimento" type="date" class="mt-1 block w-full" :value="old('data_nascimento')" required />
+                                    <x-text-input id="data_nascimento" name="data_nascimento" type="date" class="mt-1 block w-full" :value="old('data_nascimento')" required 
+                                        onchange="calcularFaixaEtaria(this.value)" />
+                                    <div id="faixa_etaria_display" class="mt-2 text-sm font-medium text-emerald-600 hidden">
+                                        Categoria: <span id="faixa_etaria_texto"></span>
+                                    </div>
                                     <x-input-error class="mt-2" :messages="$errors->get('data_nascimento')" />
                                 </div>
+                                <div>
+                                    <x-input-label for="data_admissao" :value="__('Data de Admissão')" />
+                                    <x-text-input id="data_admissao" name="data_admissao" type="date" class="mt-1 block w-full" :value="old('data_admissao', date('Y-m-d'))" required />
+                                    <x-input-error class="mt-2" :messages="$errors->get('data_admissao')" />
+                                </div>
+
+                                <script>
+                                    function calcularFaixaEtaria(dataNascimento) {
+                                        if (!dataNascimento) return;
+                                        
+                                        const hoje = new Date();
+                                        const nascimento = new Date(dataNascimento);
+                                        let idade = hoje.getFullYear() - nascimento.getFullYear();
+                                        const m = hoje.getMonth() - nascimento.getMonth();
+                                        
+                                        if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
+                                            idade--;
+                                        }
+
+                                        let categoria = "";
+                                        let cor = "text-emerald-600";
+
+                                        if (idade >= 60 && idade <= 64) {
+                                            categoria = "60-64 anos";
+                                        } else if (idade >= 65 && idade <= 69) {
+                                            categoria = "65-69 anos";
+                                        } else if (idade >= 70 && idade <= 74) {
+                                            categoria = "70-74 anos";
+                                        } else if (idade >= 75) {
+                                            categoria = "75 anos ou mais";
+                                        } else {
+                                            categoria = "Menor de 60 anos (Não elegível)";
+                                            cor = "text-amber-600";
+                                        }
+
+                                        const display = document.getElementById('faixa_etaria_display');
+                                        const texto = document.getElementById('faixa_etaria_texto');
+                                        
+                                        display.classList.remove('hidden');
+                                        texto.innerText = categoria;
+                                        display.className = `mt-2 text-sm font-medium ${cor}`;
+                                    }
+                                </script>
                                 <div>
                                     <x-input-label for="cpf" :value="__('CPF (opcional)')" />
                                     <x-text-input id="cpf" name="cpf" type="text" class="mt-1 block w-full" :value="old('cpf')" x-data x-mask="999.999.999-99" placeholder="000.000.000-00" />

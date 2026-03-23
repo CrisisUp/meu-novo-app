@@ -97,6 +97,8 @@ class IdosoController extends Controller
 
         if ($request->hasFile('foto')) {
             $data['foto'] = $request->file('foto')->store('fotos_idosos', 'public');
+        } else {
+            $data['foto'] = null; // Garante que se não houver foto, o campo seja nulo explicitamente
         }
 
         Idoso::create($data);

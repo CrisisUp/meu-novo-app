@@ -32,6 +32,24 @@ class ExportService
     }
 
     /**
+     * Gera o relatório de movimentação mensal (Controle Social) em PDF.
+     */
+    public function gerarRelatorioMovimentacaoPdf($dados, int $mes, int $ano)
+    {
+        $mesNome = Carbon::createFromDate($ano, $mes, 1)->locale('pt_BR')->monthName;
+
+        return Pdf::loadView('relatorios.movimentacao-pdf', [
+            'saldoAnterior' => $dados['saldoAnterior'],
+            'entradas' => $dados['entradas'],
+            'saidas' => $dados['saidas'],
+            'saldoAtual' => $dados['saldoAtual'],
+            'mesNome' => ucfirst($mesNome),
+            'mes' => $mes,
+            'ano' => $ano
+        ]);
+    }
+
+    /**
      * Gera o relatório de ponto mensal de um funcionário em PDF.
      */
     public function gerarRelatorioPontoPdf(\App\Models\User $user, int $mes, int $ano)
@@ -63,15 +81,18 @@ class ExportService
         // Adiciona o BOM para o Excel abrir corretamente em UTF-8
         fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF)); 
         
-        fputcsv($handle, ['ID', 'Nome', 'CPF', 'Data Nascimento', 'Idade', 'Responsável', 'Telefone', 'Medicamentos', 'Alergias']);
+        fputcsv($handle, ['ID', 'Nome', 'CPF', 'NIS', 'Sexo', 'Dependência', 'Data Nascimento', 'Idade', 'Responsável', 'Telefone', 'Medicamentos', 'Alergias']);
 
         foreach ($idosos as $idoso) {
             fputcsv($handle, [
                 $idoso->id,
                 $idoso->nome,
-                $idoso->cpf,
+                $idoso->cpf_masked,
+                $idoso->nis_masked,
+                $idoso->sexo_texto,
+                'Grau ' . $idoso->grau_dependencia,
                 $idoso->data_nascimento,
-                Carbon::parse($idoso->data_nascimento)->age,
+                \Carbon\Carbon::parse($idoso->data_nascimento)->age,
                 $idoso->contato_emergencia_nome,
                 $idoso->contato_emergencia_telefone,
                 $idoso->medicamentos,

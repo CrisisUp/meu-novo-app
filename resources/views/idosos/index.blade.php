@@ -54,29 +54,55 @@
                     </div>
 
                     <!-- Filtros Rápidos -->
-                    <div class="flex flex-wrap items-center gap-3">
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mr-2">Filtros Rápidos:</span>
-                        
-                        <a href="{{ route('idoso.index', ['search' => $search]) }}" 
-                            class="px-3 py-1 text-xs font-bold rounded-full border {{ !$filtro ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400' }} transition-all">
-                            Todos
-                        </a>
-
-                        <a href="{{ route('idoso.index', ['search' => $search, 'filtro' => 'sem_cpf']) }}" 
-                            class="px-3 py-1 text-xs font-bold rounded-full border {{ $filtro == 'sem_cpf' ? 'bg-amber-100 text-amber-800 border-amber-300 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-amber-300' }} transition-all">
-                            Ficha Incompleta (Sem CPF)
-                        </a>
-
-                        <a href="{{ route('idoso.index', ['search' => $search, 'filtro' => 'com_medicamento']) }}" 
-                            class="px-3 py-1 text-xs font-bold rounded-full border {{ $filtro == 'com_medicamento' ? 'bg-blue-100 text-blue-800 border-blue-300 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300' }} transition-all">
-                            Uso de Medicamentos
-                        </a>
-
-                        @if($search || $filtro)
-                            <a href="{{ route('idoso.index') }}" class="text-slate-400 hover:text-slate-600 text-xs font-bold uppercase underline ml-auto">
-                                Limpar Tudo
+                    <div class="flex flex-col gap-4">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mr-2">Status:</span>
+                            
+                            <a href="{{ route('idoso.index', ['search' => $search]) }}" 
+                                class="px-3 py-1 text-xs font-bold rounded-full border {{ !$filtro ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400' }} transition-all">
+                                Todos
                             </a>
-                        @endif
+
+                            <a href="{{ route('idoso.index', ['search' => $search, 'filtro' => 'sem_cpf']) }}" 
+                                class="px-3 py-1 text-xs font-bold rounded-full border {{ $filtro == 'sem_cpf' ? 'bg-amber-100 text-amber-800 border-amber-300 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-amber-300' }} transition-all">
+                                Ficha Incompleta
+                            </a>
+
+                            <a href="{{ route('idoso.index', ['search' => $search, 'filtro' => 'com_medicamento']) }}" 
+                                class="px-3 py-1 text-xs font-bold rounded-full border {{ $filtro == 'com_medicamento' ? 'bg-blue-100 text-blue-800 border-blue-300 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300' }} transition-all">
+                                Medicamentos
+                            </a>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-3 border-t border-slate-100 pt-4">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mr-2">Faixa Etária:</span>
+
+                            <a href="{{ route('idoso.index', ['search' => $search, 'filtro' => 'faixa_60_64']) }}" 
+                                class="px-3 py-1 text-xs font-bold rounded-full border {{ $filtro == 'faixa_60_64' ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-600' }} transition-all">
+                                60-64 anos
+                            </a>
+
+                            <a href="{{ route('idoso.index', ['search' => $search, 'filtro' => 'faixa_65_69']) }}" 
+                                class="px-3 py-1 text-xs font-bold rounded-full border {{ $filtro == 'faixa_65_69' ? 'bg-blue-600 text-white border-blue-600 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-blue-600' }} transition-all">
+                                65-69 anos
+                            </a>
+
+                            <a href="{{ route('idoso.index', ['search' => $search, 'filtro' => 'faixa_70_74']) }}" 
+                                class="px-3 py-1 text-xs font-bold rounded-full border {{ $filtro == 'faixa_70_74' ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-600' }} transition-all">
+                                70-74 anos
+                            </a>
+
+                            <a href="{{ route('idoso.index', ['search' => $search, 'filtro' => 'faixa_75_mais']) }}" 
+                                class="px-3 py-1 text-xs font-bold rounded-full border {{ $filtro == 'faixa_75_mais' ? 'bg-purple-600 text-white border-purple-600 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-purple-600' }} transition-all">
+                                75+ anos
+                            </a>
+
+                            @if($search || $filtro)
+                                <a href="{{ route('idoso.index') }}" class="text-slate-400 hover:text-slate-600 text-xs font-bold uppercase underline ml-auto">
+                                    Limpar Tudo
+                                </a>
+                            @endif
+                        </div>
                     </div>
                 </form>
             </div>
@@ -88,7 +114,7 @@
                             <tr>
                                 <th class="table-header-cell">Registro</th>
                                 <th class="table-header-cell">Nome</th>
-                                <th class="table-header-cell">Idade</th>
+                                <th class="table-header-cell">Idade / Faixa</th>
                                 <th class="table-header-cell">CPF / NIS</th>
                                 <th class="table-header-cell text-center w-36">Ações</th>
                             </tr>
@@ -122,12 +148,26 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="table-cell text-slate-800 text-lg">
-                                        {{ \Carbon\Carbon::parse($idoso->data_nascimento)->age }} anos
+                                    <td class="table-cell">
+                                        <div class="text-lg text-slate-800 font-bold">{{ $idoso->idade }} anos</div>
+                                        <div class="mt-1">
+                                            @php
+                                                $corFaixa = match($idoso->faixa_etaria) {
+                                                    '60-64 anos' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                                    '65-69 anos' => 'bg-blue-50 text-blue-700 border-blue-200',
+                                                    '70-74 anos' => 'bg-indigo-50 text-indigo-700 border-indigo-200',
+                                                    '75 anos ou mais' => 'bg-purple-50 text-purple-700 border-purple-200',
+                                                    default => 'bg-slate-50 text-slate-700 border-slate-200',
+                                                };
+                                            @endphp
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border {{ $corFaixa }}">
+                                                {{ $idoso->faixa_etaria }}
+                                            </span>
+                                        </div>
                                     </td>
                                     <td class="table-cell">
-                                        <div class="text-sm text-slate-600 font-bold font-mono">CPF: {{ $idoso->cpf ?? '-' }}</div>
-                                        <div class="text-xs text-slate-800 font-black font-mono mt-1">NIS: {{ $idoso->nis }}</div>
+                                        <div class="text-sm text-slate-600 font-bold font-mono">CPF: {{ $idoso->cpf_masked }}</div>
+                                        <div class="text-xs text-slate-800 font-black font-mono mt-1">NIS: {{ $idoso->nis_masked }}</div>
                                     </td>
                                     <td class="table-cell text-center">
                                         <div class="flex items-center justify-center space-x-5">

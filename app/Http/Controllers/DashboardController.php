@@ -26,7 +26,8 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $totalIdosos = Idoso::count();
+        // Contagem apenas de idosos ativos (sem data de desligamento)
+        $totalIdosos = Idoso::whereNull('data_desligamento')->count();
         
         // Equipe presente hoje (deu entrada e ainda não deu saída)
         $equipeHoje = PresencaEquipe::where('data', Carbon::today()->toDateString())

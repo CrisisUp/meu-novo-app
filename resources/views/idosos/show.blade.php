@@ -68,6 +68,21 @@
                             <h3 class="text-lg font-bold text-slate-800">{{ $idoso->nome }}</h3>
                             <p class="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100 mt-2">{{ $idoso->codigo_registro }}</p>
                             <p class="text-sm text-slate-400 font-medium mt-2">{{ \Carbon\Carbon::parse($idoso->data_nascimento)->age }} anos</p>
+                            
+                            <div class="mt-4 flex flex-col gap-2">
+                                <div>
+                                    <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Dependência</span>
+                                    <span class="inline-flex items-center px-4 py-1 rounded-full text-sm font-black bg-slate-900 text-white uppercase tracking-tighter shadow-sm">
+                                        Grau {{ $idoso->grau_dependencia }}
+                                    </span>
+                                </div>
+                                <div>
+                                    <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Gênero</span>
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 uppercase border border-slate-200">
+                                        {{ $idoso->sexo_texto }}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="space-y-4 border-t border-slate-50 pt-6">
@@ -77,11 +92,11 @@
                             </div>
                             <div>
                                 <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider">CPF</span>
-                                <span class="text-sm text-slate-700 font-medium">{{ $idoso->cpf ?? 'Não informado' }}</span>
+                                <span class="text-sm text-slate-700 font-medium">{{ $idoso->cpf_masked }}</span>
                             </div>
                             <div>
                                 <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider">NIS</span>
-                                <span class="text-sm text-slate-700 font-medium">{{ $idoso->nis ?? 'Não informado' }}</span>
+                                <span class="text-sm text-slate-700 font-medium">{{ $idoso->nis_masked }}</span>
                             </div>
                         </div>
                     </div>
@@ -96,7 +111,7 @@
                 </div>
 
                 <!-- Coluna Principal: Saúde e Obs -->
-                <div class="md:col-span-2 space-y-6">
+...
                     <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-200">
                         <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6 flex items-center">
                             <svg class="w-4 h-4 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

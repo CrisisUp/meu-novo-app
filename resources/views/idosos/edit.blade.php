@@ -28,8 +28,73 @@
                         @csrf
                         @method('PUT')
 
-                        <!-- Dados Pessoais -->
+                        <!-- Situação do Usuário -->
                         <div>
+                            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Situação do Usuário</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 p-4 bg-slate-50 rounded-lg border border-slate-100">
+                                <div>
+                                    <x-input-label for="sexo" :value="__('Sexo / Gênero')" />
+                                    <x-select-input id="sexo" name="sexo" class="mt-1 block w-full" required>
+                                        <option value="cis_f" {{ old('sexo', $idoso->sexo) == 'cis_f' ? 'selected' : '' }}>Cisgênero Feminino</option>
+                                        <option value="cis_m" {{ old('sexo', $idoso->sexo) == 'cis_m' ? 'selected' : '' }}>Cisgênero Masculino</option>
+                                        <option value="trans_f" {{ old('sexo', $idoso->sexo) == 'trans_f' ? 'selected' : '' }}>Transgênero Feminino</option>
+                                        <option value="trans_m" {{ old('sexo', $idoso->sexo) == 'trans_m' ? 'selected' : '' }}>Transgênero Masculino</option>
+                                        <option value="agenero" {{ old('sexo', $idoso->sexo) == 'agenero' ? 'selected' : '' }}>Agênero</option>
+                                        <option value="nao_declarado" {{ old('sexo', $idoso->sexo) == 'nao_declarado' ? 'selected' : '' }}>Não declarado</option>
+                                    </x-select-input>
+                                    <x-input-error class="mt-2" :messages="$errors->get('sexo')" />
+                                </div>
+                                <div>
+                                    <x-input-label for="grau_dependencia" :value="__('Grau de Dependência')" />
+                                    <x-select-input id="grau_dependencia" name="grau_dependencia" class="mt-1 block w-full" required>
+                                        <option value="I" {{ old('grau_dependencia', $idoso->grau_dependencia) == 'I' ? 'selected' : '' }}>Grau I</option>
+                                        <option value="II" {{ old('grau_dependencia', $idoso->grau_dependencia) == 'II' ? 'selected' : '' }}>Grau II</option>
+                                        <option value="III" {{ old('grau_dependencia', $idoso->grau_dependencia) == 'III' ? 'selected' : '' }}>Grau III</option>
+                                    </x-select-input>
+                                    <x-input-error class="mt-2" :messages="$errors->get('grau_dependencia')" />
+                                </div>
+                                <div>
+                                    <x-input-label for="data_admissao" :value="__('Data de Admissão')" />
+                                    <x-text-input id="data_admissao" name="data_admissao" type="date" class="mt-1 block w-full" :value="old('data_admissao', $idoso->data_admissao)" required />
+                                    <x-input-error class="mt-2" :messages="$errors->get('data_admissao')" />
+                                </div>
+                                <div class="md:col-span-1">
+                                    <span class="text-xs font-bold text-slate-400 uppercase">Status Atual</span>
+                                    <div class="mt-2">
+                                        @if($idoso->data_desligamento)
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700 border border-rose-200 uppercase">Inativo / Desligado</span>
+                                        @else
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 uppercase tracking-wide">Ativo no Centro</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Campos de Desligamento -->
+                            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-rose-50/30 rounded-lg border border-rose-100">
+                                <div>
+                                    <x-input-label for="data_desligamento" :value="__('Data do Desligamento (Se houver)')" class="text-rose-800" />
+                                    <x-text-input id="data_desligamento" name="data_desligamento" type="date" class="mt-1 block w-full border-rose-200 focus:border-rose-500 focus:ring-rose-500" :value="old('data_desligamento', $idoso->data_desligamento)" />
+                                    <x-input-error class="mt-2" :messages="$errors->get('data_desligamento')" />
+                                </div>
+                                <div>
+                                    <x-input-label for="motivo_desligamento" :value="__('Motivo do Desligamento')" class="text-rose-800" />
+                                    <x-select-input id="motivo_desligamento" name="motivo_desligamento" class="mt-1 block w-full border-rose-200 focus:border-rose-500 focus:ring-rose-500">
+                                        <option value="">-- Selecione o Motivo --</option>
+                                        <option value="Falecimento" {{ old('motivo_desligamento', $idoso->motivo_desligamento) == 'Falecimento' ? 'selected' : '' }}>Falecimento</option>
+                                        <option value="Mudança de Cidade" {{ old('motivo_desligamento', $idoso->motivo_desligamento) == 'Mudança de Cidade' ? 'selected' : '' }}>Mudança de Cidade</option>
+                                        <option value="Transferência para outra Instituição" {{ old('motivo_desligamento', $idoso->motivo_desligamento) == 'Transferência para outra Instituição' ? 'selected' : '' }}>Transferência para outra Instituição</option>
+                                        <option value="Solicitação da Família" {{ old('motivo_desligamento', $idoso->motivo_desligamento) == 'Solicitação da Família' ? 'selected' : '' }}>Solicitação da Família</option>
+                                        <option value="Melhora do Quadro / Autonomia" {{ old('motivo_desligamento', $idoso->motivo_desligamento) == 'Melhora do Quadro / Autonomia' ? 'selected' : '' }}>Melhora do Quadro / Autonomia</option>
+                                        <option value="Outros" {{ old('motivo_desligamento', $idoso->motivo_desligamento) == 'Outros' ? 'selected' : '' }}>Outros</option>
+                                    </x-select-input>
+                                    <x-input-error class="mt-2" :messages="$errors->get('motivo_desligamento')" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dados Pessoais -->
+                        <div class="pt-8 border-t border-slate-100">
                             <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Dados Pessoais</h3>
                             
                             <div class="mb-6 flex items-center space-x-6">
