@@ -19,6 +19,7 @@ class Idoso extends Model
         'foto',
         'data_nascimento',
         'sexo',
+        'raca_cor',
         'grau_dependencia',
         'data_admissao',
         'data_desligamento',
@@ -31,6 +32,22 @@ class Idoso extends Model
         'medicamentos',
         'observacoes',
     ];
+
+    /**
+     * Retorna o texto formatado da raça/cor.
+     */
+    public function getRacaCorTextoAttribute()
+    {
+        return match($this->raca_cor) {
+            'branca' => 'Branca',
+            'preta' => 'Preta',
+            'parda' => 'Parda',
+            'amarela' => 'Amarela',
+            'indigena' => 'Indígena',
+            'nao_informado' => 'Não informado',
+            default => $this->raca_cor
+        };
+    }
 
     /**
      * Retorna o texto formatado do sexo/gênero.

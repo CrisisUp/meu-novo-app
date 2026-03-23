@@ -45,6 +45,18 @@
                                     <x-input-error class="mt-2" :messages="$errors->get('sexo')" />
                                 </div>
                                 <div>
+                                    <x-input-label for="raca_cor" :value="__('Raça / Cor')" />
+                                    <x-select-input id="raca_cor" name="raca_cor" class="mt-1 block w-full" required>
+                                        <option value="branca" {{ old('raca_cor', $idoso->raca_cor) == 'branca' ? 'selected' : '' }}>Branca</option>
+                                        <option value="preta" {{ old('raca_cor', $idoso->raca_cor) == 'preta' ? 'selected' : '' }}>Preta</option>
+                                        <option value="parda" {{ old('raca_cor', $idoso->raca_cor) == 'parda' ? 'selected' : '' }}>Parda</option>
+                                        <option value="amarela" {{ old('raca_cor', $idoso->raca_cor) == 'amarela' ? 'selected' : '' }}>Amarela</option>
+                                        <option value="indigena" {{ old('raca_cor', $idoso->raca_cor) == 'indigena' ? 'selected' : '' }}>Indígena</option>
+                                        <option value="nao_informado" {{ old('raca_cor', $idoso->raca_cor) == 'nao_informado' ? 'selected' : '' }}>Não informado</option>
+                                    </x-select-input>
+                                    <x-input-error class="mt-2" :messages="$errors->get('raca_cor')" />
+                                </div>
+                                <div>
                                     <x-input-label for="grau_dependencia" :value="__('Grau de Dependência')" />
                                     <x-select-input id="grau_dependencia" name="grau_dependencia" class="mt-1 block w-full" required>
                                         <option value="I" {{ old('grau_dependencia', $idoso->grau_dependencia) == 'I' ? 'selected' : '' }}>Grau I</option>

@@ -43,6 +43,8 @@ class ExportService
             'entradas' => $dados['entradas'],
             'saidas' => $dados['saidas'],
             'saldoAtual' => $dados['saldoAtual'],
+            'stats' => $dados['stats'],
+            'totalAtendidos' => $dados['totalAtendidos'],
             'mesNome' => ucfirst($mesNome),
             'mes' => $mes,
             'ano' => $ano

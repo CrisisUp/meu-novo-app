@@ -48,11 +48,73 @@ class RelatorioMovimentacaoController extends Controller
         $saidas = DB::selectOne("SELECT $caseFaixas FROM ($sqlBase) WHERE data_desligamento BETWEEN ? AND ?", [$ultimoDiaMesAtual, $dataInicio->toDateString(), $dataFim->toDateString()]);
         $saldoAtual = DB::selectOne("SELECT $caseFaixas FROM ($sqlBase) WHERE data_admissao <= ? AND (data_desligamento IS NULL OR data_desligamento > ?)", [$ultimoDiaMesAtual, $ultimoDiaMesAtual, $ultimoDiaMesAtual]);
 
+        // Estatísticas detalhadas dos usuários atendidos no mês
+        $usuariosAtendidosSql = "
+            SELECT * FROM idosos 
+            WHERE data_admissao <= ? 
+            AND (data_desligamento IS NULL OR data_desligamento >= ?)
+        ";
+        $usuariosAtendidos = DB::select($usuariosAtendidosSql, [$dataFim->toDateString(), $dataInicio->toDateString()]);
+
+        $stats = [
+            'sexo' => ['M' => 0, 'F' => 0, 'Outros' => 0],
+            'identidade' => [
+                'cis_f' => 0, 'cis_m' => 0, 'trans_f' => 0, 'trans_m' => 0, 'agenero' => 0, 'nao_declarado' => 0
+            ],
+            'raca_cor' => [
+                'branca' => 0, 'preta' => 0, 'parda' => 0, 'amarela' => 0, 'indigena' => 0, 'nao_informado' => 0
+            ],
+            'grau_dependencia' => [
+                'I' => 0, 'II' => 0, 'III' => 0
+            ],
+            'saidas_permanencia' => []
+        ];
+
+        foreach ($usuariosAtendidos as $u) {
+            // Sexo (agrupado por M/F/O)
+            if (in_array($u->sexo, ['cis_m', 'trans_m'])) $stats['sexo']['M']++;
+            elseif (in_array($u->sexo, ['cis_f', 'trans_f'])) $stats['sexo']['F']++;
+            else $stats['sexo']['Outros']++;
+
+            // Identidade de Gênero
+            $stats['identidade'][$u->sexo ?? 'nao_declarado']++;
+
+            // Raça/Cor
+            $stats['raca_cor'][$u->raca_cor ?? 'nao_informado']++;
+
+            // Grau de Dependência
+            $stats['grau_dependencia'][$u->grau_dependencia ?? 'I']++;
+
+            // Tempo de permanência para quem saiu NESTE mês
+            if ($u->data_desligamento && 
+                $u->data_desligamento >= $dataInicio->toDateString() && 
+                $u->data_desligamento <= $dataFim->toDateString()) {
+                
+                $admissao = Carbon::parse($u->data_admissao);
+                $desligamento = Carbon::parse($u->data_desligamento);
+                $meses = $admissao->diffInMonths($desligamento);
+                
+                if ($meses < 6) $bucket = 'Menos de 6 meses';
+                elseif ($meses < 12) $bucket = '6 a 12 meses';
+                elseif ($meses < 24) $bucket = '1 a 2 anos';
+                else $bucket = 'Mais de 2 anos';
+
+                $stats['saidas_permanencia'][] = [
+                    'nome' => $u->nome,
+                    'permanencia' => $bucket,
+                    'meses' => $meses,
+                    'motivo' => $u->motivo_desligamento
+                ];
+            }
+        }
+
         return [
             'saldoAnterior' => $saldoAnterior ?: $this->getEmptyObject(),
             'entradas' => $entradas ?: $this->getEmptyObject(),
             'saidas' => $saidas ?: $this->getEmptyObject(),
             'saldoAtual' => $saldoAtual ?: $this->getEmptyObject(),
+            'stats' => $stats,
+            'totalAtendidos' => count($usuariosAtendidos)
         ];
     }
 

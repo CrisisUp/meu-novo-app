@@ -15,12 +15,20 @@
         .label-cell { text-align: left; font-weight: bold; background-color: #fafafa; }
         
         .total-row { background-color: #eee; font-weight: bold; }
+        .section-title { margin-top: 30px; font-size: 14px; font-weight: bold; text-transform: uppercase; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+        .grid { width: 100%; margin-top: 10px; }
+        .grid td { border: none; text-align: left; vertical-align: top; padding: 0 10px; }
+        .small-table { width: 100%; border-collapse: collapse; }
+        .small-table th, .small-table td { border: 1px solid #ccc; padding: 4px; font-size: 9px; }
+        .small-table th { background-color: #f9f9f9; }
+
         .footer { margin-top: 50px; }
         .signatures { margin-top: 80px; width: 100%; }
         .signatures td { border: none; padding: 0 20px; vertical-align: top; width: 50%; }
         .line { border-top: 1px solid #000; width: 200px; margin: 0 auto 5px; }
         
         .info-footer { position: fixed; bottom: 0; width: 100%; text-align: right; font-size: 8px; color: #999; }
+        .page-break { page-break-before: always; }
     </style>
 </head>
 <body>
@@ -82,9 +90,74 @@
         </tbody>
     </table>
 
+    <div class="section-title">Perfil dos Usuários Atendidos (Total: {{ $totalAtendidos }})</div>
+    
+    <table class="grid">
+        <tr>
+            <td width="50%">
+                <p><strong>Classificação por Sexo</strong></p>
+                <table class="small-table">
+                    <tr><td>Masculino</td><td align="right">{{ $stats['sexo']['M'] }}</td></tr>
+                    <tr><td>Feminino</td><td align="right">{{ $stats['sexo']['F'] }}</td></tr>
+                    <tr><td>Outros / Não declarado</td><td align="right">{{ $stats['sexo']['Outros'] }}</td></tr>
+                </table>
+
+                <p><strong>Identidade de Gênero</strong></p>
+                <table class="small-table">
+                    <tr><td>Cisgênero Feminino</td><td align="right">{{ $stats['identidade']['cis_f'] }}</td></tr>
+                    <tr><td>Cisgênero Masculino</td><td align="right">{{ $stats['identidade']['cis_m'] }}</td></tr>
+                    <tr><td>Transgênero Feminino</td><td align="right">{{ $stats['identidade']['trans_f'] }}</td></tr>
+                    <tr><td>Transgênero Masculino</td><td align="right">{{ $stats['identidade']['trans_m'] }}</td></tr>
+                    <tr><td>Agênero</td><td align="right">{{ $stats['identidade']['agenero'] }}</td></tr>
+                    <tr><td>Não declarado</td><td align="right">{{ $stats['identidade']['nao_declarado'] }}</td></tr>
+                </table>
+            </td>
+            <td width="50%">
+                <p><strong>Raça / Cor</strong></p>
+                <table class="small-table">
+                    <tr><td>Branca</td><td align="right">{{ $stats['raca_cor']['branca'] }}</td></tr>
+                    <tr><td>Preta</td><td align="right">{{ $stats['raca_cor']['preta'] }}</td></tr>
+                    <tr><td>Parda</td><td align="right">{{ $stats['raca_cor']['parda'] }}</td></tr>
+                    <tr><td>Amarela</td><td align="right">{{ $stats['raca_cor']['amarela'] }}</td></tr>
+                    <tr><td>Indígena</td><td align="right">{{ $stats['raca_cor']['indigena'] }}</td></tr>
+                    <tr><td>Não informado</td><td align="right">{{ $stats['raca_cor']['nao_informado'] }}</td></tr>
+                </table>
+
+                <p><strong>Grau de Dependência</strong></p>
+                <table class="small-table">
+                    <tr><td>Grau I (Independente)</td><td align="right">{{ $stats['grau_dependencia']['I'] }}</td></tr>
+                    <tr><td>Grau II (Dependência Leve/Mod.)</td><td align="right">{{ $stats['grau_dependencia']['II'] }}</td></tr>
+                    <tr><td>Grau III (Dependência Grave/Total)</td><td align="right">{{ $stats['grau_dependencia']['III'] }}</td></tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    <div class="section-title">Tempo de Permanência (Desligamentos do Mês)</div>
+    @if(count($stats['saidas_permanencia']) > 0)
+        <table class="small-table" style="margin-top: 10px;">
+            <thead>
+                <tr>
+                    <th>Usuário</th>
+                    <th>Tempo na Instituição</th>
+                    <th>Motivo da Saída</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($stats['saidas_permanencia'] as $saida)
+                    <tr>
+                        <td align="left">{{ $saida['nome'] }}</td>
+                        <td>{{ $saida['permanencia'] }} ({{ $saida['meses'] }} meses)</td>
+                        <td align="left">{{ $saida['motivo'] ?? 'Não informado' }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @else
+        <p style="text-align: center; color: #999; margin-top: 10px;">Nenhuma saída registrada neste período.</p>
+    @endif
+
     <div class="footer">
-        <p><strong>Observações:</strong> Relatório gerado automaticamente para fins de controle social e prestação de contas governamentais.</p>
-        
         <table class="signatures">
             <tr>
                 <td>
