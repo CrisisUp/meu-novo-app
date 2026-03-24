@@ -104,25 +104,22 @@ class Idoso extends Model
             // Se já tiver um código (ex: vindo de um import), mantém
             if ($idoso->codigo_registro) return;
 
-            DB::transaction(function () use ($idoso) {
-                $ano = date('Y');
-                
-                // Busca o último ID (independente do ano de criação) para garantir sequencial único
-                // ou busca o último código do ano atual. Vamos usar o ano atual para o padrão CDI-YYYY-XXXX.
-                $ultimoIdoso = DB::table('idosos')
-                    ->where('codigo_registro', 'like', "CDI-{$ano}-%")
-                    ->orderBy('codigo_registro', 'desc')
-                    ->lockForUpdate()
-                    ->first();
+            $ano = date('Y');
+            
+            // Busca o último código gerado para este ano específico
+            // Usamos withTrashed() para não reutilizar sequenciais de registros apagados
+            $ultimoIdoso = DB::table('idosos')
+                ->where('codigo_registro', 'like', "CDI-{$ano}-%")
+                ->orderBy('codigo_registro', 'desc')
+                ->first();
 
-                $sequencial = 1;
-                if ($ultimoIdoso) {
-                    $partes = explode('-', $ultimoIdoso->codigo_registro);
-                    $sequencial = ((int) end($partes)) + 1;
-                }
-                
-                $idoso->codigo_registro = 'CDI-' . $ano . '-' . str_pad($sequencial, 4, '0', STR_PAD_LEFT);
-            });
+            $sequencial = 1;
+            if ($ultimoIdoso) {
+                $partes = explode('-', $ultimoIdoso->codigo_registro);
+                $sequencial = ((int) end($partes)) + 1;
+            }
+            
+            $idoso->codigo_registro = 'CDI-' . $ano . '-' . str_pad($sequencial, 4, '0', STR_PAD_LEFT);
         });
     }
 

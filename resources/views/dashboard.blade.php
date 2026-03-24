@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-slate-800 leading-tight">
+        <h2 class="font-semibold text-xl text-slate-800 dark:text-slate-100 leading-tight">
             {{ __('Painel de Controle') }}
         </h2>
     </x-slot>
@@ -21,11 +21,11 @@
             @endif
 
             <!-- Boas-vindas e Registro de Ponto -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-slate-200 mb-8">
+            <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-xl border border-slate-200 dark:border-slate-800 mb-8">
                 <div class="p-8 flex flex-col md:flex-row justify-between items-center">
                     <div>
-                        <h3 class="text-2xl font-bold mb-2 text-slate-800">Olá, {{ Auth::user()->name }}!</h3>
-                        <p class="text-slate-500 font-medium">Bem-vindo ao Sistema de Gestão CDI. Veja o resumo de hoje.</p>
+                        <h3 class="text-2xl font-bold mb-2 text-slate-800 dark:text-slate-100">Olá, {{ Auth::user()->name }}!</h3>
+                        <p class="text-slate-500 dark:text-slate-400 font-medium">Bem-vindo ao Sistema de Gestão CDI. Veja o resumo de hoje.</p>
                     </div>
                     
                     <div class="mt-6 md:mt-0 flex space-x-3">
@@ -50,12 +50,12 @@
                                 </button>
                             </form>
                             <div class="text-right ml-4 hidden md:block">
-                                <span class="block text-xs font-bold text-slate-400 uppercase">Entrada às:</span>
-                                <span class="text-sm font-bold text-slate-700">{{ \Carbon\Carbon::parse($meuPonto->entrada)->format('H:i') }}</span>
+                                <span class="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">Entrada às:</span>
+                                <span class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ \Carbon\Carbon::parse($meuPonto->entrada)->format('H:i') }}</span>
                             </div>
                         @else
                             <div class="flex flex-col items-end">
-                                <div class="bg-slate-50 px-6 py-3 rounded-lg border border-slate-200 text-slate-500 font-bold text-sm flex items-center">
+                                <div class="bg-slate-50 dark:bg-slate-800 px-6 py-3 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-bold text-sm flex items-center">
                                     <svg class="w-5 h-5 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                     </svg>
@@ -73,39 +73,39 @@
             <!-- Estatísticas Reais -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <!-- Card Idosos -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
                     <div class="flex items-center justify-between mb-4">
-                        <div class="h-10 w-10 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-700">
+                        <div class="h-10 w-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center text-emerald-700 dark:text-emerald-400">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                             </svg>
                         </div>
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Atendidos</span>
+                        <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Atendidos</span>
                     </div>
-                    <div class="text-3xl font-extrabold text-slate-800">{{ $totalIdosos }}</div>
-                    <p class="text-sm text-slate-400 mt-1">Idosos cadastrados</p>
+                    <div class="text-3xl font-extrabold text-slate-800 dark:text-slate-100">{{ $totalIdosos }}</div>
+                    <p class="text-sm text-slate-400 dark:text-slate-500 mt-1">Idosos cadastrados</p>
                 </div>
 
                 <!-- Card Equipe Presente -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
                     <div class="flex items-center justify-between mb-4">
-                        <div class="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-700">
+                        <div class="h-10 w-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-700 dark:text-blue-400">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
                         </div>
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">No Posto</span>
+                        <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">No Posto</span>
                     </div>
-                    <div class="text-3xl font-extrabold text-slate-800">{{ $equipeHoje }}</div>
-                    <p class="text-sm text-slate-400 mt-1">Colaboradores presentes</p>
+                    <div class="text-3xl font-extrabold text-slate-800 dark:text-slate-100">{{ $equipeHoje }}</div>
+                    <p class="text-sm text-slate-400 dark:text-slate-500 mt-1">Colaboradores presentes</p>
                 </div>
             </div>
 
             <!-- Dashboards Visuais -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                 <!-- Gráfico de Movimentação Mensal -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <h4 class="text-slate-800 font-bold mb-6 flex items-center">
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+                    <h4 class="text-slate-800 dark:text-slate-100 font-bold mb-6 flex items-center">
                         <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
                         </svg>
@@ -117,8 +117,8 @@
                 </div>
 
                 <!-- Gráfico de Faixa Etária -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <h4 class="text-slate-800 font-bold mb-6 flex items-center">
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+                    <h4 class="text-slate-800 dark:text-slate-100 font-bold mb-6 flex items-center">
                         <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
@@ -132,8 +132,8 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                 <!-- Gráfico de Grau de Dependência -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <h4 class="text-slate-800 font-bold mb-6 flex items-center">
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+                    <h4 class="text-slate-800 dark:text-slate-100 font-bold mb-6 flex items-center">
                         <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
@@ -145,8 +145,8 @@
                 </div>
 
                 <!-- Gráfico de Atividades/Oficinas -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <h4 class="text-slate-800 font-bold mb-6 flex items-center">
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+                    <h4 class="text-slate-800 dark:text-slate-100 font-bold mb-6 flex items-center">
                         <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                         </svg>
@@ -174,10 +174,10 @@
                     </div>
                 </div>
 
-                <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-center">
-                    <h4 class="text-slate-800 font-bold mb-2">Prontuários Atualizados</h4>
-                    <p class="text-slate-500 text-sm mb-4">Acesse rapidamente a lista completa para consultar prontuários e informações de saúde.</p>
-                    <a href="{{ route('idoso.index') }}" class="text-emerald-700 font-bold text-sm hover:underline flex items-center">
+                <div class="bg-white dark:bg-slate-900 p-8 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col justify-center">
+                    <h4 class="text-slate-800 dark:text-slate-100 font-bold mb-2">Prontuários Atualizados</h4>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-4">Acesse rapidamente a lista completa para consultar prontuários e informações de saúde.</p>
+                    <a href="{{ route('idoso.index') }}" class="text-emerald-700 dark:text-emerald-400 font-bold text-sm hover:underline flex items-center">
                         Ver Lista de Idosos
                         <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />

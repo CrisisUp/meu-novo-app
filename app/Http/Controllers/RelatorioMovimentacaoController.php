@@ -24,23 +24,20 @@ class RelatorioMovimentacaoController extends Controller
     {
         $dataInicio = Carbon::createFromDate($ano, $mes, 1)->startOfMonth();
         $dataFim = (clone $dataInicio)->endOfMonth();
-        $ultimoDiaMesAnterior = (clone $dataInicio)->subDay()->toDateString();
-
-        // IMPORTANTE: Para relatórios históricos, precisamos de withTrashed() 
-        // para não "sumir" com quem foi excluído meses depois do relatório.
         
+        $fimMesAnterior = (clone $dataInicio)->subSecond();
+        $ultimoDiaMesAnterior = $fimMesAnterior->toDateString();
+
         // 1. SALDO ANTERIOR (Ativos no último dia do mês anterior)
         $idososSaldoAnterior = Idoso::withTrashed()
             ->where('data_admissao', '<=', $ultimoDiaMesAnterior)
             ->where(function($q) use ($ultimoDiaMesAnterior) {
-                // Não desligado OU desligado após o mês anterior
                 $q->whereNull('data_desligamento')
                   ->orWhere('data_desligamento', '>', $ultimoDiaMesAnterior);
             })
-            ->where(function($q) use ($ultimoDiaMesAnterior) {
-                // Não excluído OU excluído após o mês anterior
+            ->where(function($q) use ($fimMesAnterior) {
                 $q->whereNull('deleted_at')
-                  ->orWhere('deleted_at', '>', $ultimoDiaMesAnterior);
+                  ->orWhere('deleted_at', '>', $fimMesAnterior);
             })
             ->get();
 
@@ -49,9 +46,20 @@ class RelatorioMovimentacaoController extends Controller
             ->whereBetween('data_admissao', [$dataInicio->toDateString(), $dataFim->toDateString()])
             ->get();
 
-        // 3. SAÍDAS (Desligados no período - Ignora exclusões de sistema)
+        // 3. SAÍDAS (Quem deixou de ser ativo NESTE mês)
         $idososSaidas = Idoso::withTrashed()
-            ->whereBetween('data_desligamento', [$dataInicio->toDateString(), $dataFim->toDateString()])
+            ->where(function($q) use ($dataInicio, $dataFim) {
+                // Caso A: Desligamento oficial ocorreu este mês
+                $q->whereBetween('data_desligamento', [$dataInicio->toDateString(), $dataFim->toDateString()])
+                // Caso B: Exclusão do sistema ocorreu este mês, mas o idoso ainda era considerado ATIVO no início do mês
+                  ->orWhere(function($sq) use ($dataInicio, $dataFim) {
+                      $sq->whereBetween('deleted_at', [$dataInicio, $dataFim])
+                         ->where(function($ssq) use ($dataInicio) {
+                             $ssq->whereNull('data_desligamento')
+                                 ->orWhere('data_desligamento', '>=', $dataInicio->toDateString());
+                         });
+                  });
+            })
             ->get();
 
         // 4. SALDO ATUAL (Ativos no último dia do mês atual)
@@ -63,12 +71,12 @@ class RelatorioMovimentacaoController extends Controller
             })
             ->where(function($q) use ($dataFim) {
                 $q->whereNull('deleted_at')
-                  ->orWhere('deleted_at', '>', $dataFim->toDateString());
+                  ->orWhere('deleted_at', '>', $dataFim);
             })
             ->get();
 
         return [
-            'saldoAnterior' => $this->agruparPorFaixaESexo($idososSaldoAnterior, $dataFim),
+            'saldoAnterior' => $this->agruparPorFaixaESexo($idososSaldoAnterior, $fimMesAnterior),
             'entradas' => $this->agruparPorFaixaESexo($idososEntradas, $dataFim),
             'saidas' => $this->agruparPorFaixaESexo($idososSaidas, $dataFim),
             'saldoAtual' => $this->agruparPorFaixaESexo($idososSaldoAtual, $dataFim),
@@ -81,7 +89,7 @@ class RelatorioMovimentacaoController extends Controller
                 })
                 ->where(function($q) use ($dataInicio) {
                     $q->whereNull('deleted_at')
-                      ->orWhere('deleted_at', '>=', $dataInicio->toDateString());
+                      ->orWhere('deleted_at', '>=', $dataInicio);
                 })->count()
         ];
     }
@@ -91,10 +99,11 @@ class RelatorioMovimentacaoController extends Controller
         $res = $this->getEmptyObject();
 
         foreach ($colecao as $u) {
-            // CÁLCULO DE IDADE RETROATIVA: Qual idade ele tinha na data do relatório?
             $nascimento = Carbon::parse($u->data_nascimento);
             $idadeNaEpoca = $nascimento->diffInYears($dataReferencia);
 
+            // Para o balanço da tabela (binário M/F), agrupamos identidades não-binárias 
+            // na coluna Feminino para garantir que o "Total Geral" da linha feche com o saldo real.
             $isMasc = in_array($u->sexo, ['cis_m', 'trans_m']);
             $prefixo = $isMasc ? 'm_' : 'f_';
 
@@ -121,7 +130,7 @@ class RelatorioMovimentacaoController extends Controller
             })
             ->where(function($q) use ($dataInicio) {
                 $q->whereNull('deleted_at')
-                  ->orWhere('deleted_at', '>=', $dataInicio->toDateString());
+                  ->orWhere('deleted_at', '>=', $dataInicio);
             })
             ->get();
 
@@ -166,14 +175,21 @@ class RelatorioMovimentacaoController extends Controller
 
             $stats['grau_dependencia'][$u->grau_dependencia ?? 'I']++;
 
-            if ($u->data_desligamento && 
-                $u->data_desligamento >= $dataInicio->toDateString() && 
-                $u->data_desligamento <= $dataFim->toDateString()) {
-                
+            $isSaidaNoPeriodo = ($u->data_desligamento && 
+                                $u->data_desligamento >= $dataInicio->toDateString() && 
+                                $u->data_desligamento <= $dataFim->toDateString()) ||
+                                ($u->deleted_at && 
+                                $u->deleted_at >= $dataInicio && 
+                                $u->deleted_at <= $dataFim);
+
+            if ($isSaidaNoPeriodo) {
                 $admissao = Carbon::parse($u->data_admissao);
-                $desligamento = Carbon::parse($u->data_desligamento);
-                $meses = $admissao->diffInMonths($desligamento);
-                $dias = $admissao->diffInDays($desligamento);
+                $dataSaida = ($u->data_desligamento && $u->data_desligamento <= $dataFim->toDateString()) 
+                    ? Carbon::parse($u->data_desligamento) 
+                    : $u->deleted_at;
+                
+                $meses = $admissao->diffInMonths($dataSaida);
+                $dias = $admissao->diffInDays($dataSaida);
                 
                 if ($meses <= 6) {
                     $bucket = "Até 6 meses ({$dias} dias)";
@@ -185,11 +201,16 @@ class RelatorioMovimentacaoController extends Controller
                     $bucket = "Mais de 3 anos ({$dias} dias)";
                 }
 
+                $motivo = $u->motivo_desligamento;
+                if (!$u->data_desligamento && $u->deleted_at) {
+                    $motivo = "Exclusão Administrativa (Sistema)";
+                }
+
                 $stats['saidas_permanencia'][] = [
                     'nome' => $u->nome,
                     'permanencia' => $bucket,
                     'meses' => $meses,
-                    'motivo' => $u->motivo_desligamento
+                    'motivo' => $motivo
                 ];
             }
         }

@@ -20,7 +20,7 @@ class EncaminhamentoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'idoso_id' => 'required|exists:idosos,id',
+            'idoso_id' => 'required|exists:idosos,id,data_desligamento,NULL',
             'instituicao_destino' => 'required|string|max:255',
             'especialidade' => 'nullable|string|max:255',
             'motivo' => 'required|string',
@@ -36,7 +36,7 @@ class EncaminhamentoRequest extends FormRequest
     {
         return [
             'idoso_id.required' => 'O idoso é obrigatório!',
-            'idoso_id.exists' => 'O idoso selecionado é inválido!',
+            'idoso_id.exists' => 'O idoso selecionado é inválido, está desligado ou não existe.',
             'instituicao_destino.required' => 'A instituição de destino é obrigatória!',
             'motivo.required' => 'O motivo do encaminhamento é obrigatório!',
             'prioridade.required' => 'A prioridade é obrigatória!',

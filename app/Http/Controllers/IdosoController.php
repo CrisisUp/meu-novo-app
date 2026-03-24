@@ -120,19 +120,19 @@ class IdosoController extends Controller
     {
         $data = $request->validated();
 
-        // Lógica para remover a foto atual
-        if ($request->input('remover_foto') == '1') {
-            if ($idoso->foto) {
-                Storage::disk('public')->delete($idoso->foto);
-            }
-            $data['foto'] = null;
-        }
-
+        // Se houver arquivo novo, deletamos o antigo e salvamos o novo
         if ($request->hasFile('foto')) {
             if ($idoso->foto) {
                 Storage::disk('public')->delete($idoso->foto);
             }
             $data['foto'] = $request->file('foto')->store('fotos_idosos', 'public');
+        } 
+        // Caso não tenha arquivo novo, mas o usuário marcou para remover a foto atual
+        elseif ($request->input('remover_foto') == '1') {
+            if ($idoso->foto) {
+                Storage::disk('public')->delete($idoso->foto);
+            }
+            $data['foto'] = null;
         }
 
         $idoso->update($data);
