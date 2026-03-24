@@ -5,11 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Idoso;
 use App\Models\PresencaEquipe;
+use App\Services\DashboardService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
+    protected $dashboardService;
+
+    public function __construct(DashboardService $dashboardService)
+    {
+        $this->dashboardService = $dashboardService;
+    }
+
     /**
      * Exibe a página de boas-vindas (Welcome).
      */
@@ -39,6 +47,20 @@ class DashboardController extends Controller
             ->where('data', Carbon::today()->toDateString())
             ->first();
 
-        return view('dashboard', compact('totalIdosos', 'equipeHoje', 'meuPonto'));
+        // Dados para os gráficos
+        $statsGrau = $this->dashboardService->getGrauDependenciaStats();
+        $statsAtividades = $this->dashboardService->getAtividadesStats();
+        $movimentacaoMensal = $this->dashboardService->getMovimentacaoMensal();
+        $statsFaixas = $this->dashboardService->getFaixaEtariaStats();
+
+        return view('dashboard', compact(
+            'totalIdosos', 
+            'equipeHoje', 
+            'meuPonto',
+            'statsGrau',
+            'statsAtividades',
+            'movimentacaoMensal',
+            'statsFaixas'
+        ));
     }
 }

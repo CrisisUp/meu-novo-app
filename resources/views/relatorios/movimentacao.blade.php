@@ -71,10 +71,13 @@
                                     <th colspan="2" class="border border-slate-300 p-2 font-black text-slate-700">60 a 64 anos</th>
                                     <th colspan="2" class="border border-slate-300 p-2 font-black text-slate-700">65 a 69 anos</th>
                                     <th colspan="2" class="border border-slate-300 p-2 font-black text-slate-700">70 a 74 anos</th>
-                                    <th colspan="2" class="border border-slate-300 p-2 font-black text-slate-700">75 anos ou mais</th>
+                                    <th colspan="2" class="border border-slate-300 p-2 font-black text-slate-700">75 a 79 anos</th>
+                                    <th colspan="2" class="border border-slate-300 p-2 font-black text-slate-700">80 anos ou mais</th>
                                     <th rowspan="2" class="border border-slate-300 p-2 font-black text-slate-700">Total Geral</th>
                                 </tr>
                                 <tr class="bg-slate-50">
+                                    <th class="border border-slate-300 p-1 text-[10px] font-black text-slate-600">M</th>
+                                    <th class="border border-slate-300 p-1 text-[10px] font-black text-slate-600">F</th>
                                     <th class="border border-slate-300 p-1 text-[10px] font-black text-slate-600">M</th>
                                     <th class="border border-slate-300 p-1 text-[10px] font-black text-slate-600">F</th>
                                     <th class="border border-slate-300 p-1 text-[10px] font-black text-slate-600">M</th>
@@ -101,7 +104,8 @@
                                         $totalLinha = ($d->m_60_64 ?? 0) + ($d->f_60_64 ?? 0) + 
                                                      ($d->m_65_69 ?? 0) + ($d->f_65_69 ?? 0) + 
                                                      ($d->m_70_74 ?? 0) + ($d->f_70_74 ?? 0) + 
-                                                     ($d->m_75_mais ?? 0) + ($d->f_75_mais ?? 0);
+                                                     ($d->m_75_79 ?? 0) + ($d->f_75_79 ?? 0) + 
+                                                     ($d->m_80_mais ?? 0) + ($d->f_80_mais ?? 0);
                                     @endphp
                                     <tr class="{{ $linha['bg'] }}">
                                         <td class="border border-slate-300 p-3 text-xs font-bold text-slate-700">{{ $linha['label'] }}</td>
@@ -111,8 +115,10 @@
                                         <td class="border border-slate-300 p-3 text-center text-sm">{{ $d->f_65_69 ?? 0 }}</td>
                                         <td class="border border-slate-300 p-3 text-center text-sm">{{ $d->m_70_74 ?? 0 }}</td>
                                         <td class="border border-slate-300 p-3 text-center text-sm">{{ $d->f_70_74 ?? 0 }}</td>
-                                        <td class="border border-slate-300 p-3 text-center text-sm">{{ $d->m_75_mais ?? 0 }}</td>
-                                        <td class="border border-slate-300 p-3 text-center text-sm">{{ $d->f_75_mais ?? 0 }}</td>
+                                        <td class="border border-slate-300 p-3 text-center text-sm">{{ $d->m_75_79 ?? 0 }}</td>
+                                        <td class="border border-slate-300 p-3 text-center text-sm">{{ $d->f_75_79 ?? 0 }}</td>
+                                        <td class="border border-slate-300 p-3 text-center text-sm">{{ $d->m_80_mais ?? 0 }}</td>
+                                        <td class="border border-slate-300 p-3 text-center text-sm">{{ $d->f_80_mais ?? 0 }}</td>
                                         <td class="border border-slate-300 p-3 text-center text-sm font-black text-slate-900">{{ $totalLinha }}</td>
                                     </tr>
                                 @endforeach

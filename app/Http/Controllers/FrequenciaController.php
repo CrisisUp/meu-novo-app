@@ -18,7 +18,14 @@ class FrequenciaController extends Controller
     {
         $data = $request->input('data', Carbon::today()->toDateString());
         
-        $idosos = Idoso::whereNull('data_desligamento')->orderBy('nome')->get();
+        // Apenas idosos que estavam ativos na data consultada (ou que são ativos hoje)
+        $idosos = Idoso::where(function($query) use ($data) {
+            $query->whereNull('data_desligamento')
+                  ->orWhere('data_desligamento', '>=', $data);
+        })
+        ->where('data_admissao', '<=', $data)
+        ->orderBy('nome')
+        ->get();
         
         $frequencias = Frequencia::where('data', $data)->get()->keyBy('idoso_id');
 
@@ -37,7 +44,17 @@ class FrequenciaController extends Controller
         $now = now();
         $authId = Auth::id();
 
-        $idosoIds = Idoso::pluck('id');
+        // IMPORTANTE: Apenas idosos ativos na data devem receber registro de frequência
+        $idosoIds = Idoso::where(function($query) use ($data) {
+            $query->whereNull('data_desligamento')
+                  ->orWhere('data_desligamento', '>=', $data);
+        })
+        ->where('data_admissao', '<=', $data)
+        ->pluck('id');
+
+        if ($idosoIds->isEmpty()) {
+            return redirect()->back()->with('error', 'Não há idosos ativos para registrar frequência nesta data.');
+        }
 
         $upsertData = $idosoIds->map(function ($id) use ($data, $presencas, $observacoes, $now, $authId) {
             return [
@@ -48,13 +65,18 @@ class FrequenciaController extends Controller
                 'user_id' => $authId,
                 'created_at' => $now,
                 'updated_at' => $now,
+                // Mantemos entrada e saida como null aqui para não sobrescrever caso já existam via Upsert
+                // O Laravel Upsert exige que todas as colunas da tabela existam no array se não tiverem default
             ];
         })->toArray();
 
+        // No SQLite/MySQL o Upsert pode se comportar diferente com colunas faltantes.
+        // Para garantir que entrada/saida não sejam zerados, usamos updateColumns seletivos.
         Frequencia::upsert(
             $upsertData, 
             ['idoso_id', 'data'], 
-            ['status', 'observacoes', 'user_id', 'updated_at']
+            ['status', 'observacoes', 'user_id', 'updated_at'] 
+            // Note que NÃO incluímos 'entrada' e 'saida' no update para preservá-los
         );
 
         return redirect()->route('frequencia.index', ['data' => $data])

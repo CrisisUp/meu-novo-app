@@ -101,6 +101,63 @@
                 </div>
             </div>
 
+            <!-- Dashboards Visuais -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <!-- Gráfico de Movimentação Mensal -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h4 class="text-slate-800 font-bold mb-6 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                        </svg>
+                        Movimentação Mensal (Últimos 6 meses)
+                    </h4>
+                    <div class="h-64">
+                        <canvas id="movimentacaoChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Gráfico de Faixa Etária -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h4 class="text-slate-800 font-bold mb-6 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        Perfil Etário (Faixas)
+                    </h4>
+                    <div class="h-64">
+                        <canvas id="faixasChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <!-- Gráfico de Grau de Dependência -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h4 class="text-slate-800 font-bold mb-6 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        Grau de Dependência
+                    </h4>
+                    <div class="h-64">
+                        <canvas id="dependenciaChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Gráfico de Atividades/Oficinas -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h4 class="text-slate-800 font-bold mb-6 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                        Adesão por Oficina / Atividade
+                    </h4>
+                    <div class="h-64">
+                        <canvas id="atividadesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
             <!-- Atalhos Rápidos -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div class="bg-slate-800 p-8 rounded-xl shadow-lg text-white">
@@ -131,4 +188,118 @@
 
         </div>
     </div>
+
+    @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cores padrão CDI
+            const colors = {
+                emerald: '#059669',
+                blue: '#2563eb',
+                slate: '#64748b',
+                red: '#dc2626',
+                amber: '#d97706',
+                indigo: '#4f46e5'
+            };
+
+            // 1. Gráfico de Movimentação
+            new Chart(document.getElementById('movimentacaoChart'), {
+                type: 'line',
+                data: {
+                    labels: {!! json_encode($movimentacaoMensal['labels']) !!},
+                    datasets: [
+                        {
+                            label: 'Admissões',
+                            data: {!! json_encode($movimentacaoMensal['admissoes']) !!},
+                            borderColor: colors.emerald,
+                            backgroundColor: colors.emerald + '20',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Desligamentos',
+                            data: {!! json_encode($movimentacaoMensal['desligamentos']) !!},
+                            borderColor: colors.red,
+                            backgroundColor: colors.red + '20',
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // 2. Gráfico de Faixas Etárias
+            new Chart(document.getElementById('faixasChart'), {
+                type: 'pie',
+                data: {
+                    labels: {!! json_encode(array_keys($statsFaixas)) !!},
+                    datasets: [{
+                        data: {!! json_encode(array_values($statsFaixas)) !!},
+                        backgroundColor: [colors.emerald, colors.blue, colors.indigo, colors.amber, colors.red, colors.slate]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // 3. Gráfico de Dependência
+            new Chart(document.getElementById('dependenciaChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: {!! json_encode(array_keys($statsGrau)) !!},
+                    datasets: [{
+                        data: {!! json_encode(array_values($statsGrau)) !!},
+                        backgroundColor: [colors.emerald, colors.blue, colors.amber, colors.slate]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // 4. Gráfico de Atividades
+            new Chart(document.getElementById('atividadesChart'), {
+                type: 'bar',
+                data: {
+                    labels: {!! json_encode(array_keys($statsAtividades)) !!},
+                    datasets: [{
+                        label: 'Nº de Idosos Inscritos',
+                        data: {!! json_encode(array_values($statsAtividades)) !!},
+                        backgroundColor: colors.blue
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        });
+    </script>
+    @endpush
 </x-app-layout>

@@ -5,11 +5,12 @@ namespace App\Models;
 use App\Traits\Loggable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 class Idoso extends Model
 {
-    use HasFactory, Loggable;
+    use HasFactory, Loggable, SoftDeletes;
 
     protected $table = 'idosos';
 
@@ -100,11 +101,28 @@ class Idoso extends Model
     protected static function booted()
     {
         static::creating(function ($idoso) {
-            $ano = date('Y');
-            $ultimoIdoso = static::whereYear('created_at', $ano)->orderBy('id', 'desc')->first();
-            $sequencial = $ultimoIdoso ? ((int) substr($ultimoIdoso->codigo_registro, -4)) + 1 : 1;
-            
-            $idoso->codigo_registro = 'CDI-' . $ano . '-' . str_pad($sequencial, 4, '0', STR_PAD_LEFT);
+            // Se já tiver um código (ex: vindo de um import), mantém
+            if ($idoso->codigo_registro) return;
+
+            DB::transaction(function () use ($idoso) {
+                $ano = date('Y');
+                
+                // Busca o último ID (independente do ano de criação) para garantir sequencial único
+                // ou busca o último código do ano atual. Vamos usar o ano atual para o padrão CDI-YYYY-XXXX.
+                $ultimoIdoso = DB::table('idosos')
+                    ->where('codigo_registro', 'like', "CDI-{$ano}-%")
+                    ->orderBy('codigo_registro', 'desc')
+                    ->lockForUpdate()
+                    ->first();
+
+                $sequencial = 1;
+                if ($ultimoIdoso) {
+                    $partes = explode('-', $ultimoIdoso->codigo_registro);
+                    $sequencial = ((int) end($partes)) + 1;
+                }
+                
+                $idoso->codigo_registro = 'CDI-' . $ano . '-' . str_pad($sequencial, 4, '0', STR_PAD_LEFT);
+            });
         });
     }
 
@@ -131,7 +149,8 @@ class Idoso extends Model
         return $query->when($search, function ($query, $search) {
                 return $query->where(function($q) use ($search) {
                     $q->where('nome', 'like', "%{$search}%")
-                      ->orWhere('cpf', 'like', "%{$search}%");
+                      ->orWhere('cpf', 'like', "%{$search}%")
+                      ->orWhere('codigo_registro', 'like', "%{$search}%");
                 });
             })
             // Filtro de Status (Ativos por padrão se não for 'desligados' ou 'todos')
@@ -153,16 +172,28 @@ class Idoso extends Model
                 return $query->whereNotNull('medicamentos')->where('medicamentos', '!=', '');
             })
             ->when($filtro == 'faixa_60_64', function ($query) {
-                return $query->whereBetween('data_nascimento', [now()->subYears(65)->addDay(), now()->subYears(60)]);
+                $hoje = today();
+                // 60 anos completos até 64 anos e 364 dias
+                return $query->where('data_nascimento', '<=', $hoje->copy()->subYears(60))
+                             ->where('data_nascimento', '>', $hoje->copy()->subYears(65));
             })
             ->when($filtro == 'faixa_65_69', function ($query) {
-                return $query->whereBetween('data_nascimento', [now()->subYears(70)->addDay(), now()->subYears(65)]);
+                $hoje = today();
+                return $query->where('data_nascimento', '<=', $hoje->copy()->subYears(65))
+                             ->where('data_nascimento', '>', $hoje->copy()->subYears(70));
             })
             ->when($filtro == 'faixa_70_74', function ($query) {
-                return $query->whereBetween('data_nascimento', [now()->subYears(75)->addDay(), now()->subYears(70)]);
+                $hoje = today();
+                return $query->where('data_nascimento', '<=', $hoje->copy()->subYears(70))
+                             ->where('data_nascimento', '>', $hoje->copy()->subYears(75));
             })
-            ->when($filtro == 'faixa_75_mais', function ($query) {
-                return $query->where('data_nascimento', '<=', now()->subYears(75));
+            ->when($filtro == 'faixa_75_79', function ($query) {
+                $hoje = today();
+                return $query->where('data_nascimento', '<=', $hoje->copy()->subYears(75))
+                             ->where('data_nascimento', '>', $hoje->copy()->subYears(80));
+            })
+            ->when($filtro == 'faixa_80_mais', function ($query) {
+                return $query->where('data_nascimento', '<=', today()->subYears(80));
             });
     }
 
@@ -176,21 +207,24 @@ class Idoso extends Model
 
     /**
      * Atributo virtual para definir a categoria (faixa etária).
+     * Alinhado com o Estatuto do Idoso (Prioridade Especial 80+).
      */
     public function getFaixaEtariaAttribute()
     {
         $idade = $this->idade;
 
-        if ($idade >= 60 && $idade <= 64) {
+        if ($idade < 60) {
+            return 'Menor de 60 anos';
+        } elseif ($idade <= 64) {
             return '60-64 anos';
-        } elseif ($idade >= 65 && $idade <= 69) {
+        } elseif ($idade <= 69) {
             return '65-69 anos';
-        } elseif ($idade >= 70 && $idade <= 74) {
+        } elseif ($idade <= 74) {
             return '70-74 anos';
-        } elseif ($idade >= 75) {
-            return '75 anos ou mais';
+        } elseif ($idade <= 79) {
+            return '75-79 anos';
         }
 
-        return 'Menor de 60 anos';
+        return '80 anos ou mais';
     }
 }

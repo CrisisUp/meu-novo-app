@@ -30,7 +30,7 @@
                     <div class="flex items-center space-x-4 mb-6">
                         <div class="relative flex-1">
                             <input type="text" name="search" value="{{ $search }}" 
-                                placeholder="Buscar por nome ou CPF..." 
+                                placeholder="Buscar por nome, CPF ou registro..." 
                                 class="w-full border-slate-200 focus:border-slate-500 focus:ring-slate-500 rounded-lg shadow-sm pl-10 text-slate-600">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,22 +91,27 @@
 
                             <a href="{{ route('idoso.index', ['search' => $search, 'filtro' => 'faixa_60_64']) }}" 
                                 class="px-3 py-1 text-xs font-bold rounded-full border {{ $filtro == 'faixa_60_64' ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-600' }} transition-all">
-                                60-64 anos
+                                60-64
                             </a>
 
                             <a href="{{ route('idoso.index', ['search' => $search, 'filtro' => 'faixa_65_69']) }}" 
                                 class="px-3 py-1 text-xs font-bold rounded-full border {{ $filtro == 'faixa_65_69' ? 'bg-blue-600 text-white border-blue-600 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-blue-600' }} transition-all">
-                                65-69 anos
+                                65-69
                             </a>
 
                             <a href="{{ route('idoso.index', ['search' => $search, 'filtro' => 'faixa_70_74']) }}" 
                                 class="px-3 py-1 text-xs font-bold rounded-full border {{ $filtro == 'faixa_70_74' ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-600' }} transition-all">
-                                70-74 anos
+                                70-74
                             </a>
 
-                            <a href="{{ route('idoso.index', ['search' => $search, 'filtro' => 'faixa_75_mais']) }}" 
-                                class="px-3 py-1 text-xs font-bold rounded-full border {{ $filtro == 'faixa_75_mais' ? 'bg-purple-600 text-white border-purple-600 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-purple-600' }} transition-all">
-                                75+ anos
+                            <a href="{{ route('idoso.index', ['search' => $search, 'filtro' => 'faixa_75_79']) }}" 
+                                class="px-3 py-1 text-xs font-bold rounded-full border {{ $filtro == 'faixa_75_79' ? 'bg-purple-600 text-white border-purple-600 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-purple-600' }} transition-all">
+                                75-79
+                            </a>
+
+                            <a href="{{ route('idoso.index', ['search' => $search, 'filtro' => 'faixa_80_mais']) }}" 
+                                class="px-3 py-1 text-xs font-bold rounded-full border {{ $filtro == 'faixa_80_mais' ? 'bg-rose-600 text-white border-rose-600 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-rose-600' }} transition-all">
+                                80+
                             </a>
 
                             @if($search || $filtro)
@@ -174,7 +179,8 @@
                                                     '60-64 anos' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
                                                     '65-69 anos' => 'bg-blue-50 text-blue-700 border-blue-200',
                                                     '70-74 anos' => 'bg-indigo-50 text-indigo-700 border-indigo-200',
-                                                    '75 anos ou mais' => 'bg-purple-50 text-purple-700 border-purple-200',
+                                                    '75-79 anos' => 'bg-purple-50 text-purple-700 border-purple-200',
+                                                    '80 anos ou mais' => 'bg-rose-50 text-rose-700 border-rose-200',
                                                     default => 'bg-slate-50 text-slate-700 border-slate-200',
                                                 };
                                             @endphp

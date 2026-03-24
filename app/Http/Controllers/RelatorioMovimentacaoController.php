@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Idoso;
 use App\Services\ExportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -24,37 +25,80 @@ class RelatorioMovimentacaoController extends Controller
         $dataInicio = Carbon::createFromDate($ano, $mes, 1)->startOfMonth();
         $dataFim = (clone $dataInicio)->endOfMonth();
         $ultimoDiaMesAnterior = (clone $dataInicio)->subDay()->toDateString();
-        $ultimoDiaMesAtual = $dataFim->toDateString();
+        $hojeStr = today()->toDateString();
 
-        $sqlBase = "
-            SELECT *, 
-            (strftime('%Y', ?) - strftime('%Y', data_nascimento)) as idade 
-            FROM idosos
-        ";
+        // Lógica de contagem em PHP para garantir precisão máxima e consistência com o resto do sistema
+        // Em vez de SQL complexo com strftime (que falha no SQLite/MySQL de formas diferentes),
+        // buscamos os registros e processamos a lógica de idade no PHP.
+        
+        // 1. SALDO ANTERIOR (Ativos no último dia do mês anterior)
+        $idososSaldoAnterior = Idoso::where('data_admissao', '<=', $ultimoDiaMesAnterior)
+            ->where(function($q) use ($ultimoDiaMesAnterior) {
+                $q->whereNull('data_desligamento')
+                  ->orWhere('data_desligamento', '>', $ultimoDiaMesAnterior);
+            })
+            ->get();
 
-        $caseFaixas = "
-            COALESCE(SUM(CASE WHEN idade BETWEEN 60 AND 64 AND sexo IN ('cis_m', 'trans_m') THEN 1 ELSE 0 END), 0) as m_60_64,
-            COALESCE(SUM(CASE WHEN idade BETWEEN 60 AND 64 AND sexo IN ('cis_f', 'trans_f') THEN 1 ELSE 0 END), 0) as f_60_64,
-            COALESCE(SUM(CASE WHEN idade BETWEEN 65 AND 69 AND sexo IN ('cis_m', 'trans_m') THEN 1 ELSE 0 END), 0) as m_65_69,
-            COALESCE(SUM(CASE WHEN idade BETWEEN 65 AND 69 AND sexo IN ('cis_f', 'trans_f') THEN 1 ELSE 0 END), 0) as f_65_69,
-            COALESCE(SUM(CASE WHEN idade BETWEEN 70 AND 74 AND sexo IN ('cis_m', 'trans_m') THEN 1 ELSE 0 END), 0) as m_70_74,
-            COALESCE(SUM(CASE WHEN idade BETWEEN 70 AND 74 AND sexo IN ('cis_f', 'trans_f') THEN 1 ELSE 0 END), 0) as f_70_74,
-            COALESCE(SUM(CASE WHEN idade >= 75 AND sexo IN ('cis_m', 'trans_m') THEN 1 ELSE 0 END), 0) as m_75_mais,
-            COALESCE(SUM(CASE WHEN idade >= 75 AND sexo IN ('cis_f', 'trans_f') THEN 1 ELSE 0 END), 0) as f_75_mais
-        ";
+        // 2. ENTRADAS (Admitidos no período)
+        $idososEntradas = Idoso::whereBetween('data_admissao', [$dataInicio->toDateString(), $dataFim->toDateString()])
+            ->get();
 
-        $saldoAnterior = DB::selectOne("SELECT $caseFaixas FROM ($sqlBase) WHERE data_admissao <= ? AND (data_desligamento IS NULL OR data_desligamento > ?)", [$ultimoDiaMesAnterior, $ultimoDiaMesAnterior, $ultimoDiaMesAnterior]);
-        $entradas = DB::selectOne("SELECT $caseFaixas FROM ($sqlBase) WHERE data_admissao BETWEEN ? AND ?", [$ultimoDiaMesAtual, $dataInicio->toDateString(), $dataFim->toDateString()]);
-        $saidas = DB::selectOne("SELECT $caseFaixas FROM ($sqlBase) WHERE data_desligamento BETWEEN ? AND ?", [$ultimoDiaMesAtual, $dataInicio->toDateString(), $dataFim->toDateString()]);
-        $saldoAtual = DB::selectOne("SELECT $caseFaixas FROM ($sqlBase) WHERE data_admissao <= ? AND (data_desligamento IS NULL OR data_desligamento > ?)", [$ultimoDiaMesAtual, $ultimoDiaMesAtual, $ultimoDiaMesAtual]);
+        // 3. SAÍDAS (Desligados no período)
+        $idososSaidas = Idoso::whereBetween('data_desligamento', [$dataInicio->toDateString(), $dataFim->toDateString()])
+            ->get();
 
-        // Estatísticas detalhadas dos usuários atendidos no mês
-        $usuariosAtendidosSql = "
-            SELECT * FROM idosos 
-            WHERE data_admissao <= ? 
-            AND (data_desligamento IS NULL OR data_desligamento >= ?)
-        ";
-        $usuariosAtendidos = DB::select($usuariosAtendidosSql, [$dataFim->toDateString(), $dataInicio->toDateString()]);
+        // 4. SALDO ATUAL (Ativos no último dia do mês atual)
+        $idososSaldoAtual = Idoso::where('data_admissao', '<=', $dataFim->toDateString())
+            ->where(function($q) use ($dataFim) {
+                $q->whereNull('data_desligamento')
+                  ->orWhere('data_desligamento', '>', $dataFim->toDateString());
+            })
+            ->get();
+
+        return [
+            'saldoAnterior' => $this->agruparPorFaixaESexo($idososSaldoAnterior),
+            'entradas' => $this->agruparPorFaixaESexo($idososEntradas),
+            'saidas' => $this->agruparPorFaixaESexo($idososSaidas),
+            'saldoAtual' => $this->agruparPorFaixaESexo($idososSaldoAtual),
+            'stats' => $this->calcularStatsGerais($dataInicio, $dataFim),
+            'totalAtendidos' => Idoso::where('data_admissao', '<=', $dataFim->toDateString())
+                ->where(function($q) use ($dataInicio) {
+                    $q->whereNull('data_desligamento')
+                      ->orWhere('data_desligamento', '>=', $dataInicio->toDateString());
+                })->count()
+        ];
+    }
+
+    private function agruparPorFaixaESexo($colecao)
+    {
+        $res = $this->getEmptyObject();
+
+        foreach ($colecao as $u) {
+            $idade = $u->idade;
+            $isMasc = in_array($u->sexo, ['cis_m', 'trans_m']);
+            $prefixo = $isMasc ? 'm_' : 'f_';
+
+            if ($idade >= 60 && $idade <= 64) $chave = $prefixo . '60_64';
+            elseif ($idade >= 65 && $idade <= 69) $chave = $prefixo . '65_69';
+            elseif ($idade >= 70 && $idade <= 74) $chave = $prefixo . '70_74';
+            elseif ($idade >= 75 && $idade <= 79) $chave = $prefixo . '75_79';
+            elseif ($idade >= 80) $chave = $prefixo . '80_mais';
+            else continue; // Menores de 60 não entram na tabela de controle social
+
+            $res->$chave++;
+        }
+
+        return $res;
+    }
+
+    private function calcularStatsGerais($dataInicio, $dataFim)
+    {
+        $usuariosAtendidos = Idoso::where('data_admissao', '<=', $dataFim->toDateString())
+            ->where(function($q) use ($dataInicio) {
+                $q->whereNull('data_desligamento')
+                  ->orWhere('data_desligamento', '>=', $dataInicio->toDateString());
+            })
+            ->get();
 
         $stats = [
             'sexo' => ['M' => 0, 'F' => 0, 'Outros' => 0],
@@ -71,21 +115,14 @@ class RelatorioMovimentacaoController extends Controller
         ];
 
         foreach ($usuariosAtendidos as $u) {
-            // Sexo (agrupado por M/F/O)
             if (in_array($u->sexo, ['cis_m', 'trans_m'])) $stats['sexo']['M']++;
             elseif (in_array($u->sexo, ['cis_f', 'trans_f'])) $stats['sexo']['F']++;
             else $stats['sexo']['Outros']++;
 
-            // Identidade de Gênero
             $stats['identidade'][$u->sexo ?? 'nao_declarado']++;
-
-            // Raça/Cor
             $stats['raca_cor'][$u->raca_cor ?? 'nao_informado']++;
-
-            // Grau de Dependência
             $stats['grau_dependencia'][$u->grau_dependencia ?? 'I']++;
 
-            // Tempo de permanência para quem saiu NESTE mês
             if ($u->data_desligamento && 
                 $u->data_desligamento >= $dataInicio->toDateString() && 
                 $u->data_desligamento <= $dataFim->toDateString()) {
@@ -94,10 +131,10 @@ class RelatorioMovimentacaoController extends Controller
                 $desligamento = Carbon::parse($u->data_desligamento);
                 $meses = $admissao->diffInMonths($desligamento);
                 
+                $bucket = 'Mais de 2 anos';
                 if ($meses < 6) $bucket = 'Menos de 6 meses';
                 elseif ($meses < 12) $bucket = '6 a 12 meses';
                 elseif ($meses < 24) $bucket = '1 a 2 anos';
-                else $bucket = 'Mais de 2 anos';
 
                 $stats['saidas_permanencia'][] = [
                     'nome' => $u->nome,
@@ -108,14 +145,7 @@ class RelatorioMovimentacaoController extends Controller
             }
         }
 
-        return [
-            'saldoAnterior' => $saldoAnterior ?: $this->getEmptyObject(),
-            'entradas' => $entradas ?: $this->getEmptyObject(),
-            'saidas' => $saidas ?: $this->getEmptyObject(),
-            'saldoAtual' => $saldoAtual ?: $this->getEmptyObject(),
-            'stats' => $stats,
-            'totalAtendidos' => count($usuariosAtendidos)
-        ];
+        return $stats;
     }
 
     public function index(Request $request)
@@ -146,7 +176,8 @@ class RelatorioMovimentacaoController extends Controller
             'm_60_64' => 0, 'f_60_64' => 0,
             'm_65_69' => 0, 'f_65_69' => 0,
             'm_70_74' => 0, 'f_70_74' => 0,
-            'm_75_mais' => 0, 'f_75_mais' => 0,
+            'm_75_79' => 0, 'f_75_79' => 0,
+            'm_80_mais' => 0, 'f_80_mais' => 0,
         ];
     }
 }

@@ -24,7 +24,8 @@ class IdosoRequest extends FormRequest
         return [
             'nome' => 'required|string|max:255',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:10240',
-            'data_nascimento' => 'required|date',
+            // Valida que deve ter pelo menos 60 anos (nascido antes de 60 anos atrás a partir de hoje)
+            'data_nascimento' => 'required|date|before_or_equal:' . today()->subYears(60)->format('Y-m-d'),
             'sexo' => 'required|string|in:cis_m,cis_f,trans_m,trans_f,agenero,nao_declarado',
             'raca_cor' => 'required|string|in:branca,preta,parda,amarela,indigena,nao_informado',
             'grau_dependencia' => 'required|string|in:I,II,III',
@@ -38,6 +39,16 @@ class IdosoRequest extends FormRequest
             'alergias' => 'nullable|string',
             'medicamentos' => 'nullable|string',
             'observacoes' => 'nullable|string',
+        ];
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     */
+    public function messages(): array
+    {
+        return [
+            'data_nascimento.before_or_equal' => 'O idoso deve ter pelo menos 60 anos para ser cadastrado no CDI.',
         ];
     }
 }
