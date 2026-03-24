@@ -80,11 +80,13 @@ class DashboardService
             $monthName = $date->translatedFormat('M/Y');
             $months[] = $monthName;
 
-            $admissions[] = Idoso::whereYear('data_admissao', $date->year)
+            $admissions[] = Idoso::withTrashed()
+                ->whereYear('data_admissao', $date->year)
                 ->whereMonth('data_admissao', $date->month)
                 ->count();
 
-            $discharges[] = Idoso::whereYear('data_desligamento', $date->year)
+            $discharges[] = Idoso::withTrashed()
+                ->whereYear('data_desligamento', $date->year)
                 ->whereMonth('data_desligamento', $date->month)
                 ->count();
         }

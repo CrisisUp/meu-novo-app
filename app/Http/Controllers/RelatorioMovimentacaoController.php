@@ -25,65 +25,85 @@ class RelatorioMovimentacaoController extends Controller
         $dataInicio = Carbon::createFromDate($ano, $mes, 1)->startOfMonth();
         $dataFim = (clone $dataInicio)->endOfMonth();
         $ultimoDiaMesAnterior = (clone $dataInicio)->subDay()->toDateString();
-        $hojeStr = today()->toDateString();
 
-        // Lógica de contagem em PHP para garantir precisão máxima e consistência com o resto do sistema
-        // Em vez de SQL complexo com strftime (que falha no SQLite/MySQL de formas diferentes),
-        // buscamos os registros e processamos a lógica de idade no PHP.
+        // IMPORTANTE: Para relatórios históricos, precisamos de withTrashed() 
+        // para não "sumir" com quem foi excluído meses depois do relatório.
         
         // 1. SALDO ANTERIOR (Ativos no último dia do mês anterior)
-        $idososSaldoAnterior = Idoso::where('data_admissao', '<=', $ultimoDiaMesAnterior)
+        $idososSaldoAnterior = Idoso::withTrashed()
+            ->where('data_admissao', '<=', $ultimoDiaMesAnterior)
             ->where(function($q) use ($ultimoDiaMesAnterior) {
+                // Não desligado OU desligado após o mês anterior
                 $q->whereNull('data_desligamento')
                   ->orWhere('data_desligamento', '>', $ultimoDiaMesAnterior);
+            })
+            ->where(function($q) use ($ultimoDiaMesAnterior) {
+                // Não excluído OU excluído após o mês anterior
+                $q->whereNull('deleted_at')
+                  ->orWhere('deleted_at', '>', $ultimoDiaMesAnterior);
             })
             ->get();
 
         // 2. ENTRADAS (Admitidos no período)
-        $idososEntradas = Idoso::whereBetween('data_admissao', [$dataInicio->toDateString(), $dataFim->toDateString()])
+        $idososEntradas = Idoso::withTrashed()
+            ->whereBetween('data_admissao', [$dataInicio->toDateString(), $dataFim->toDateString()])
             ->get();
 
-        // 3. SAÍDAS (Desligados no período)
-        $idososSaidas = Idoso::whereBetween('data_desligamento', [$dataInicio->toDateString(), $dataFim->toDateString()])
+        // 3. SAÍDAS (Desligados no período - Ignora exclusões de sistema)
+        $idososSaidas = Idoso::withTrashed()
+            ->whereBetween('data_desligamento', [$dataInicio->toDateString(), $dataFim->toDateString()])
             ->get();
 
         // 4. SALDO ATUAL (Ativos no último dia do mês atual)
-        $idososSaldoAtual = Idoso::where('data_admissao', '<=', $dataFim->toDateString())
+        $idososSaldoAtual = Idoso::withTrashed()
+            ->where('data_admissao', '<=', $dataFim->toDateString())
             ->where(function($q) use ($dataFim) {
                 $q->whereNull('data_desligamento')
                   ->orWhere('data_desligamento', '>', $dataFim->toDateString());
             })
+            ->where(function($q) use ($dataFim) {
+                $q->whereNull('deleted_at')
+                  ->orWhere('deleted_at', '>', $dataFim->toDateString());
+            })
             ->get();
 
         return [
-            'saldoAnterior' => $this->agruparPorFaixaESexo($idososSaldoAnterior),
-            'entradas' => $this->agruparPorFaixaESexo($idososEntradas),
-            'saidas' => $this->agruparPorFaixaESexo($idososSaidas),
-            'saldoAtual' => $this->agruparPorFaixaESexo($idososSaldoAtual),
+            'saldoAnterior' => $this->agruparPorFaixaESexo($idososSaldoAnterior, $dataFim),
+            'entradas' => $this->agruparPorFaixaESexo($idososEntradas, $dataFim),
+            'saidas' => $this->agruparPorFaixaESexo($idososSaidas, $dataFim),
+            'saldoAtual' => $this->agruparPorFaixaESexo($idososSaldoAtual, $dataFim),
             'stats' => $this->calcularStatsGerais($dataInicio, $dataFim),
-            'totalAtendidos' => Idoso::where('data_admissao', '<=', $dataFim->toDateString())
+            'totalAtendidos' => Idoso::withTrashed()
+                ->where('data_admissao', '<=', $dataFim->toDateString())
                 ->where(function($q) use ($dataInicio) {
                     $q->whereNull('data_desligamento')
                       ->orWhere('data_desligamento', '>=', $dataInicio->toDateString());
+                })
+                ->where(function($q) use ($dataInicio) {
+                    $q->whereNull('deleted_at')
+                      ->orWhere('deleted_at', '>=', $dataInicio->toDateString());
                 })->count()
         ];
     }
 
-    private function agruparPorFaixaESexo($colecao)
+    private function agruparPorFaixaESexo($colecao, $dataReferencia)
     {
         $res = $this->getEmptyObject();
 
         foreach ($colecao as $u) {
-            $idade = $u->idade;
+            // CÁLCULO DE IDADE RETROATIVA: Qual idade ele tinha na data do relatório?
+            $nascimento = Carbon::parse($u->data_nascimento);
+            $idadeNaEpoca = $nascimento->diffInYears($dataReferencia);
+
             $isMasc = in_array($u->sexo, ['cis_m', 'trans_m']);
             $prefixo = $isMasc ? 'm_' : 'f_';
 
-            if ($idade >= 60 && $idade <= 64) $chave = $prefixo . '60_64';
-            elseif ($idade >= 65 && $idade <= 69) $chave = $prefixo . '65_69';
-            elseif ($idade >= 70 && $idade <= 74) $chave = $prefixo . '70_74';
-            elseif ($idade >= 75 && $idade <= 79) $chave = $prefixo . '75_79';
-            elseif ($idade >= 80) $chave = $prefixo . '80_mais';
-            else continue; // Menores de 60 não entram na tabela de controle social
+            if ($idadeNaEpoca >= 60 && $idadeNaEpoca <= 64) $chave = $prefixo . '60_64';
+            elseif ($idadeNaEpoca >= 65 && $idadeNaEpoca <= 69) $chave = $prefixo . '65_69';
+            elseif ($idadeNaEpoca >= 70 && $idadeNaEpoca <= 74) $chave = $prefixo . '70_74';
+            elseif ($idadeNaEpoca >= 75 && $idadeNaEpoca <= 79) $chave = $prefixo . '75_79';
+            elseif ($idadeNaEpoca >= 80) $chave = $prefixo . '80_mais';
+            else continue;
 
             $res->$chave++;
         }
@@ -93,10 +113,15 @@ class RelatorioMovimentacaoController extends Controller
 
     private function calcularStatsGerais($dataInicio, $dataFim)
     {
-        $usuariosAtendidos = Idoso::where('data_admissao', '<=', $dataFim->toDateString())
+        $usuariosAtendidos = Idoso::withTrashed()
+            ->where('data_admissao', '<=', $dataFim->toDateString())
             ->where(function($q) use ($dataInicio) {
                 $q->whereNull('data_desligamento')
                   ->orWhere('data_desligamento', '>=', $dataInicio->toDateString());
+            })
+            ->where(function($q) use ($dataInicio) {
+                $q->whereNull('deleted_at')
+                  ->orWhere('deleted_at', '>=', $dataInicio->toDateString());
             })
             ->get();
 
