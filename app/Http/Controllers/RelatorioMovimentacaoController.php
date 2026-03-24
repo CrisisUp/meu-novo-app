@@ -62,7 +62,8 @@ class RelatorioMovimentacaoController extends Controller
             })
             ->get();
 
-        // 4. SALDO ATUAL (Ativos no último dia do mês atual)
+        // 4. SALDO ATUAL (Balanço matemático: Anterior + Entradas - Saídas)
+        // Isso deve ser igual aos ativos no último dia do mês.
         $idososSaldoAtual = Idoso::withTrashed()
             ->where('data_admissao', '<=', $dataFim->toDateString())
             ->where(function($q) use ($dataFim) {
@@ -75,53 +76,8 @@ class RelatorioMovimentacaoController extends Controller
             })
             ->get();
 
-        return [
-            'saldoAnterior' => $this->agruparPorFaixaESexo($idososSaldoAnterior, $fimMesAnterior),
-            'entradas' => $this->agruparPorFaixaESexo($idososEntradas, $dataFim),
-            'saidas' => $this->agruparPorFaixaESexo($idososSaidas, $dataFim),
-            'saldoAtual' => $this->agruparPorFaixaESexo($idososSaldoAtual, $dataFim),
-            'stats' => $this->calcularStatsGerais($dataInicio, $dataFim),
-            'totalAtendidos' => Idoso::withTrashed()
-                ->where('data_admissao', '<=', $dataFim->toDateString())
-                ->where(function($q) use ($dataInicio) {
-                    $q->whereNull('data_desligamento')
-                      ->orWhere('data_desligamento', '>=', $dataInicio->toDateString());
-                })
-                ->where(function($q) use ($dataInicio) {
-                    $q->whereNull('deleted_at')
-                      ->orWhere('deleted_at', '>=', $dataInicio);
-                })->count()
-        ];
-    }
-
-    private function agruparPorFaixaESexo($colecao, $dataReferencia)
-    {
-        $res = $this->getEmptyObject();
-
-        foreach ($colecao as $u) {
-            $nascimento = Carbon::parse($u->data_nascimento);
-            $idadeNaEpoca = $nascimento->diffInYears($dataReferencia);
-
-            // Para o balanço da tabela (binário M/F), agrupamos identidades não-binárias 
-            // na coluna Feminino para garantir que o "Total Geral" da linha feche com o saldo real.
-            $isMasc = in_array($u->sexo, ['cis_m', 'trans_m']);
-            $prefixo = $isMasc ? 'm_' : 'f_';
-
-            if ($idadeNaEpoca >= 60 && $idadeNaEpoca <= 64) $chave = $prefixo . '60_64';
-            elseif ($idadeNaEpoca >= 65 && $idadeNaEpoca <= 69) $chave = $prefixo . '65_69';
-            elseif ($idadeNaEpoca >= 70 && $idadeNaEpoca <= 74) $chave = $prefixo . '70_74';
-            elseif ($idadeNaEpoca >= 75 && $idadeNaEpoca <= 79) $chave = $prefixo . '75_79';
-            elseif ($idadeNaEpoca >= 80) $chave = $prefixo . '80_mais';
-            else continue;
-
-            $res->$chave++;
-        }
-
-        return $res;
-    }
-
-    private function calcularStatsGerais($dataInicio, $dataFim)
-    {
+        // 5. TOTAL ATENDIDOS (Quem passou pelo serviço em qualquer momento do mês)
+        // Regra: Estava ativo no início do mês OU entrou durante o mês.
         $usuariosAtendidos = Idoso::withTrashed()
             ->where('data_admissao', '<=', $dataFim->toDateString())
             ->where(function($q) use ($dataInicio) {
@@ -134,6 +90,42 @@ class RelatorioMovimentacaoController extends Controller
             })
             ->get();
 
+        return [
+            'saldoAnterior' => $this->agruparPorFaixaESexo($idososSaldoAnterior, $fimMesAnterior),
+            'entradas' => $this->agruparPorFaixaESexo($idososEntradas, $dataFim),
+            'saidas' => $this->agruparPorFaixaESexo($idososSaidas, $dataFim),
+            'saldoAtual' => $this->agruparPorFaixaESexo($idososSaldoAtual, $dataFim),
+            'stats' => $this->calcularStatsGerais($usuariosAtendidos, $dataInicio, $dataFim),
+            'totalAtendidos' => $usuariosAtendidos->count()
+        ];
+    }
+
+    private function agruparPorFaixaESexo($colecao, $dataReferencia)
+    {
+        $res = $this->getEmptyObject();
+
+        foreach ($colecao as $u) {
+            $nascimento = Carbon::parse($u->data_nascimento);
+            $idadeNaEpoca = $nascimento->diffInYears($dataReferencia);
+
+            $isMasc = in_array($u->sexo, ['cis_m', 'trans_m']);
+            $prefixo = $isMasc ? 'm_' : 'f_';
+
+            if ($idadeNaEpoca >= 60 && $idadeNaEpoca <= 64) $chave = $prefixo . '60_64';
+            elseif ($idadeNaEpoca >= 65 && $idadeNaEpoca <= 69) $chave = $prefixo . '65_69';
+            elseif ($idadeNaEpoca >= 70 && $idadeNaEpoca <= 74) $chave = $prefixo . '70_74';
+            elseif ($idadeNaEpoca >= 75 && $idadeNaEpoca <= 79) $chave = $prefixo . '75_79';
+            elseif ($idadeNaEpoca >= 80) $chave = $prefixo . '80_mais';
+            else $chave = $prefixo . '60_64'; // Fallback para não sumir com o idoso da tabela se ele tiver 59 anos mas estiver no CDI
+
+            $res->$chave++;
+        }
+
+        return $res;
+    }
+
+    private function calcularStatsGerais($usuariosAtendidos, $dataInicio, $dataFim)
+    {
         $stats = [
             'sexo' => ['M' => 0, 'F' => 0, 'Outros' => 0],
             'identidade' => [
