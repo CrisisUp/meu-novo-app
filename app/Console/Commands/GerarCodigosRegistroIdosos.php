@@ -26,7 +26,11 @@ class GerarCodigosRegistroIdosos extends Command
      */
     public function handle()
     {
-        $idososSemCodigo = Idoso::whereNull('codigo_registro')->orWhere('codigo_registro', '')->orderBy('id')->get();
+        $idososSemCodigo = Idoso::where(function($q) {
+                $q->whereNull('codigo_registro')->orWhere('codigo_registro', '');
+            })
+            ->orderBy('id')
+            ->get();
 
         if ($idososSemCodigo->isEmpty()) {
             $this->info('Todos os idosos já possuem código de registro.');
@@ -35,20 +39,30 @@ class GerarCodigosRegistroIdosos extends Command
 
         $this->info('Gerando códigos para ' . $idososSemCodigo->count() . ' idosos...');
 
+        // Cache para o sequencial por ano para evitar N+1 queries complexas
+        $sequenciaisPorAno = [];
+
         foreach ($idososSemCodigo as $idoso) {
             $ano = $idoso->created_at ? $idoso->created_at->year : date('Y');
             
-            // Busca o último código gerado para este ano específico
-            $ultimoIdosoAno = Idoso::where('codigo_registro', 'like', "CDI-$ano-%")
-                ->orderBy('codigo_registro', 'desc')
-                ->first();
+            if (!isset($sequenciaisPorAno[$ano])) {
+                // Busca o último código gerado para este ano específico com bloqueio de leitura
+                $ultimoIdosoAno = Idoso::withTrashed()
+                    ->where('codigo_registro', 'like', "CDI-$ano-%")
+                    ->orderBy('codigo_registro', 'desc')
+                    ->lockForUpdate()
+                    ->first();
 
-            $proximoSequencial = 1;
-            if ($ultimoIdosoAno) {
-                $proximoSequencial = ((int) substr($ultimoIdosoAno->codigo_registro, -4)) + 1;
+                $sequenciaisPorAno[$ano] = 1;
+                if ($ultimoIdosoAno) {
+                    $sequenciaisPorAno[$ano] = ((int) substr($ultimoIdosoAno->codigo_registro, -4)) + 1;
+                }
+            } else {
+                // Incrementa a partir do cache local deste lote
+                $sequenciaisPorAno[$ano]++;
             }
 
-            $novoCodigo = 'CDI-' . $ano . '-' . str_pad($proximoSequencial, 4, '0', STR_PAD_LEFT);
+            $novoCodigo = 'CDI-' . $ano . '-' . str_pad($sequenciaisPorAno[$ano], 4, '0', STR_PAD_LEFT);
             
             $idoso->update(['codigo_registro' => $novoCodigo]);
             

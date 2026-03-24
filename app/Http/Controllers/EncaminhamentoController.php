@@ -17,7 +17,12 @@ class EncaminhamentoController extends Controller
     {
         $search = $request->input('search');
 
-        $encaminhamentos = Encaminhamento::with(['idoso', 'profissional'])
+        $encaminhamentos = Encaminhamento::with([
+            'idoso' => function ($query) {
+                $query->withTrashed();
+            }, 
+            'profissional'
+        ])
             ->when($search, function ($query, $search) {
                 return $query->whereHas('idoso', function ($q) use ($search) {
                     $q->where('nome', 'like', "%{$search}%");

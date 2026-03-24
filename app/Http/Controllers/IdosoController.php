@@ -120,6 +120,14 @@ class IdosoController extends Controller
     {
         $data = $request->validated();
 
+        // Lógica para remover a foto atual
+        if ($request->input('remover_foto') == '1') {
+            if ($idoso->foto) {
+                Storage::disk('public')->delete($idoso->foto);
+            }
+            $data['foto'] = null;
+        }
+
         if ($request->hasFile('foto')) {
             if ($idoso->foto) {
                 Storage::disk('public')->delete($idoso->foto);
@@ -134,9 +142,8 @@ class IdosoController extends Controller
 
     public function destroy(Idoso $idoso)
     {
-        if ($idoso->foto) {
-            Storage::disk('public')->delete($idoso->foto);
-        }
+        // NOTA: Para integridade de SoftDeletes, NÃO deletamos o arquivo físico no destroy (soft delete).
+        // Deletar o arquivo apenas se for uma exclusão definitiva (forceDelete) no futuro.
         $idoso->delete();
         return redirect()->route('idoso.index')->with('success', 'Cadastro excluído com sucesso!');
     }

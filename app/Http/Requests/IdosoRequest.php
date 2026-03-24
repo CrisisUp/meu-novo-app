@@ -29,6 +29,7 @@ class IdosoRequest extends FormRequest
             'sexo' => 'required|string|in:cis_m,cis_f,trans_m,trans_f,agenero,nao_declarado',
             'raca_cor' => 'required|string|in:branca,preta,parda,amarela,indigena,nao_informado',
             'grau_dependencia' => 'required|string|in:I,II,III',
+            'remover_foto' => 'nullable|boolean',
             'data_admissao' => 'required|date',
             'data_desligamento' => 'nullable|date|after_or_equal:data_admissao',
             'motivo_desligamento' => 'nullable|string|max:255',

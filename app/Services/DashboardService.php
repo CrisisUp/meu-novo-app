@@ -53,9 +53,16 @@ class DashboardService
      */
     public function getAtividadesStats()
     {
-        return Atividade::withCount('idosos')
+        // Apenas conta idosos ativos (sem data de desligamento) vinculados
+        return Atividade::withCount(['idosos' => function ($query) {
+                $query->whereNull('data_desligamento');
+            }])
             ->get()
-            ->pluck('idosos_count', 'nome')
+            ->mapWithKeys(function ($item) {
+                // Combina nome e dia para evitar colisões no gráfico (ex: Fisioterapia - segunda)
+                $label = $item->nome . ' (' . ucfirst($item->dia_semana) . ')';
+                return [$label => $item->idosos_count];
+            })
             ->toArray();
     }
 

@@ -112,9 +112,13 @@
                             <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Dados Pessoais</h3>
 
                             <div class="mb-6 flex items-center space-x-6">
-                                <div class="shrink-0">
+                                <div class="shrink-0 flex flex-col items-center">
                                     @if($idoso->foto)
-                                        <img class="h-16 w-16 object-cover rounded-full border border-slate-200 shadow-sm" src="{{ asset('storage/' . $idoso->foto) }}" alt="Foto atual">
+                                        <img class="h-16 w-16 object-cover rounded-full border border-slate-200 shadow-sm mb-2" src="{{ asset('storage/' . $idoso->foto) }}" alt="Foto atual">
+                                        <div class="flex items-center space-x-1">
+                                            <input type="checkbox" name="remover_foto" id="remover_foto" value="1" class="rounded border-slate-300 text-rose-600 focus:ring-rose-500">
+                                            <label for="remover_foto" class="text-[10px] font-bold text-rose-600 uppercase">Remover</label>
+                                        </div>
                                     @else
                                         <div class="h-16 w-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 border border-slate-200">
                                             <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" /></svg>

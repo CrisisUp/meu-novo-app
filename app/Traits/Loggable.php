@@ -28,7 +28,11 @@ trait Loggable
         });
 
         static::deleted(function ($model) {
-            static::logActivity($model, 'deleted', $model->getAttributes(), null);
+            $action = method_exists($model, 'isForceDeleting') && $model->isForceDeleting() 
+                ? 'deleted' 
+                : 'soft_deleted';
+                
+            static::logActivity($model, $action, $model->getAttributes(), null);
         });
     }
 

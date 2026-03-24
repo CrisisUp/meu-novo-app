@@ -19,13 +19,20 @@ class FrequenciaController extends Controller
         $data = $request->input('data', Carbon::today()->toDateString());
         
         // Apenas idosos que estavam ativos na data consultada (ou que são ativos hoje)
-        $idosos = Idoso::where(function($query) use ($data) {
-            $query->whereNull('data_desligamento')
-                  ->orWhere('data_desligamento', '>=', $data);
-        })
-        ->where('data_admissao', '<=', $data)
-        ->orderBy('nome')
-        ->get();
+        // Usamos withTrashed() para garantir que idosos excluídos após a data continuem aparecendo no histórico
+        $idosos = Idoso::withTrashed()
+            ->where(function($query) use ($data) {
+                $query->whereNull('data_desligamento')
+                      ->orWhere('data_desligamento', '>=', $data);
+            })
+            ->where('data_admissao', '<=', $data)
+            ->where(function($query) use ($data) {
+                // Idoso não excluído OU excluído após a data consultada
+                $query->whereNull('deleted_at')
+                      ->orWhere('deleted_at', '>=', $data);
+            })
+            ->orderBy('nome')
+            ->get();
         
         $frequencias = Frequencia::where('data', $data)->get()->keyBy('idoso_id');
 
@@ -45,12 +52,17 @@ class FrequenciaController extends Controller
         $authId = Auth::id();
 
         // IMPORTANTE: Apenas idosos ativos na data devem receber registro de frequência
-        $idosoIds = Idoso::where(function($query) use ($data) {
-            $query->whereNull('data_desligamento')
-                  ->orWhere('data_desligamento', '>=', $data);
-        })
-        ->where('data_admissao', '<=', $data)
-        ->pluck('id');
+        $idosoIds = Idoso::withTrashed()
+            ->where(function($query) use ($data) {
+                $query->whereNull('data_desligamento')
+                      ->orWhere('data_desligamento', '>=', $data);
+            })
+            ->where('data_admissao', '<=', $data)
+            ->where(function($query) use ($data) {
+                $query->whereNull('deleted_at')
+                      ->orWhere('deleted_at', '>=', $data);
+            })
+            ->pluck('id');
 
         if ($idosoIds->isEmpty()) {
             return redirect()->back()->with('error', 'Não há idosos ativos para registrar frequência nesta data.');
