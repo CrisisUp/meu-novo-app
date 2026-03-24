@@ -138,16 +138,16 @@
         <table class="small-table" style="margin-top: 10px;">
             <thead>
                 <tr>
-                    <th>Usuário</th>
+                    <th align="left">Usuário</th>
                     <th>Tempo na Instituição</th>
-                    <th>Motivo da Saída</th>
+                    <th align="left">Motivo da Saída</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($stats['saidas_permanencia'] as $saida)
                     <tr>
                         <td align="left">{{ $saida['nome'] }}</td>
-                        <td>{{ $saida['permanencia'] }} ({{ $saida['meses'] }} meses)</td>
+                        <td>{{ $saida['permanencia'] }}</td>
                         <td align="left">{{ $saida['motivo'] ?? 'Não informado' }}</td>
                     </tr>
                 @endforeach
@@ -156,6 +156,55 @@
     @else
         <p style="text-align: center; color: #999; margin-top: 10px;">Nenhuma saída registrada neste período.</p>
     @endif
+
+    <div class="page-break"></div>
+    <div class="header">
+        <h1>Centro de Dia para Idosos - CDI</h1>
+        <p>Relatório de Movimentação Mensal - Detalhamento Administrativo</p>
+        <p>Competência: {{ $mesNome }} / {{ $ano }}</p>
+    </div>
+
+    <div class="section-title">Matriz de Granularidade: Cruzamento Sexo x Raça / Cor</div>
+    <table class="small-table" style="margin-top: 10px;">
+        <thead>
+            <tr style="background-color: #333; color: white;">
+                <th align="left">Sexo / Raça-Cor</th>
+                <th>Branca</th>
+                <th>Preta</th>
+                <th>Parda</th>
+                <th>Amarela</th>
+                <th>Indígena</th>
+                <th>Não Inf.</th>
+                <th style="background-color: #555;">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(['M' => 'Masculino', 'F' => 'Feminino', 'Outros' => 'Outros / N.D.'] as $key => $label)
+                <tr>
+                    <td align="left"><strong>{{ $label }}</strong></td>
+                    <td>{{ $stats['sexo_raca'][$key]['branca'] }}</td>
+                    <td>{{ $stats['sexo_raca'][$key]['preta'] }}</td>
+                    <td>{{ $stats['sexo_raca'][$key]['parda'] }}</td>
+                    <td>{{ $stats['sexo_raca'][$key]['amarela'] }}</td>
+                    <td>{{ $stats['sexo_raca'][$key]['indigena'] }}</td>
+                    <td>{{ $stats['sexo_raca'][$key]['nao_informado'] }}</td>
+                    <td style="background-color: #f9f9f9; font-weight: bold;">{{ array_sum($stats['sexo_raca'][$key]) }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+        <tfoot>
+            <tr style="background-color: #eee; font-weight: bold;">
+                <td align="left">TOTAL POR RAÇA</td>
+                <td>{{ $stats['raca_cor']['branca'] }}</td>
+                <td>{{ $stats['raca_cor']['preta'] }}</td>
+                <td>{{ $stats['raca_cor']['parda'] }}</td>
+                <td>{{ $stats['raca_cor']['amarela'] }}</td>
+                <td>{{ $stats['raca_cor']['indigena'] }}</td>
+                <td>{{ $stats['raca_cor']['nao_informado'] }}</td>
+                <td style="background-color: #ddd;">{{ $totalAtendidos }}</td>
+            </tr>
+        </tfoot>
+    </table>
 
     <div class="footer">
         <table class="signatures">

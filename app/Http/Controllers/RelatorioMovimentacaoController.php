@@ -108,6 +108,17 @@ class RelatorioMovimentacaoController extends Controller
             'raca_cor' => [
                 'branca' => 0, 'preta' => 0, 'parda' => 0, 'amarela' => 0, 'indigena' => 0, 'nao_informado' => 0
             ],
+            'sexo_raca' => [
+                'M' => [
+                    'branca' => 0, 'preta' => 0, 'parda' => 0, 'amarela' => 0, 'indigena' => 0, 'nao_informado' => 0
+                ],
+                'F' => [
+                    'branca' => 0, 'preta' => 0, 'parda' => 0, 'amarela' => 0, 'indigena' => 0, 'nao_informado' => 0
+                ],
+                'Outros' => [
+                    'branca' => 0, 'preta' => 0, 'parda' => 0, 'amarela' => 0, 'indigena' => 0, 'nao_informado' => 0
+                ],
+            ],
             'grau_dependencia' => [
                 'I' => 0, 'II' => 0, 'III' => 0
             ],
@@ -115,12 +126,19 @@ class RelatorioMovimentacaoController extends Controller
         ];
 
         foreach ($usuariosAtendidos as $u) {
-            if (in_array($u->sexo, ['cis_m', 'trans_m'])) $stats['sexo']['M']++;
-            elseif (in_array($u->sexo, ['cis_f', 'trans_f'])) $stats['sexo']['F']++;
-            else $stats['sexo']['Outros']++;
+            $sexoKey = 'Outros';
+            if (in_array($u->sexo, ['cis_m', 'trans_m'])) $sexoKey = 'M';
+            elseif (in_array($u->sexo, ['cis_f', 'trans_f'])) $sexoKey = 'F';
+            
+            $stats['sexo'][$sexoKey]++;
 
+            $racaKey = $u->raca_cor ?? 'nao_informado';
             $stats['identidade'][$u->sexo ?? 'nao_declarado']++;
-            $stats['raca_cor'][$u->raca_cor ?? 'nao_informado']++;
+            $stats['raca_cor'][$racaKey]++;
+            
+            // Cruzamento Sexo x Raça
+            $stats['sexo_raca'][$sexoKey][$racaKey]++;
+
             $stats['grau_dependencia'][$u->grau_dependencia ?? 'I']++;
 
             if ($u->data_desligamento && 
@@ -130,11 +148,17 @@ class RelatorioMovimentacaoController extends Controller
                 $admissao = Carbon::parse($u->data_admissao);
                 $desligamento = Carbon::parse($u->data_desligamento);
                 $meses = $admissao->diffInMonths($desligamento);
+                $dias = $admissao->diffInDays($desligamento);
                 
-                $bucket = 'Mais de 2 anos';
-                if ($meses < 6) $bucket = 'Menos de 6 meses';
-                elseif ($meses < 12) $bucket = '6 a 12 meses';
-                elseif ($meses < 24) $bucket = '1 a 2 anos';
+                if ($meses <= 6) {
+                    $bucket = "Até 6 meses ({$dias} dias)";
+                } elseif ($meses <= 12) {
+                    $bucket = "Mais de 6 meses a 1 ano ({$dias} dias)";
+                } elseif ($meses <= 36) {
+                    $bucket = "Mais de 1 ano a 3 anos ({$dias} dias)";
+                } else {
+                    $bucket = "Mais de 3 anos ({$dias} dias)";
+                }
 
                 $stats['saidas_permanencia'][] = [
                     'nome' => $u->nome,

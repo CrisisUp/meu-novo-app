@@ -269,6 +269,59 @@
                         </div>
                     </div>
 
+                    <!-- Matriz de Granularidade: Sexo x Raça/Cor -->
+                    <div class="mt-12 bg-slate-50 p-6 rounded-xl border border-slate-200">
+                        <h4 class="text-xs font-black text-slate-500 uppercase tracking-widest mb-6 flex items-center">
+                            <span class="bg-white p-1 rounded shadow-sm mr-2 border border-slate-100">
+                                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                            </span>
+                            Granularidade: Cruzamento Sexo x Raça / Cor (Exigência Administrativa)
+                        </h4>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full border-collapse bg-white rounded-lg overflow-hidden border border-slate-200">
+                                <thead>
+                                    <tr class="bg-slate-800 text-white">
+                                        <th class="p-3 text-xs font-bold uppercase text-left border border-slate-700">Sexo / Raça-Cor</th>
+                                        <th class="p-3 text-xs font-bold uppercase text-center border border-slate-700">Branca</th>
+                                        <th class="p-3 text-xs font-bold uppercase text-center border border-slate-700">Preta</th>
+                                        <th class="p-3 text-xs font-bold uppercase text-center border border-slate-700">Parda</th>
+                                        <th class="p-3 text-xs font-bold uppercase text-center border border-slate-700">Amarela</th>
+                                        <th class="p-3 text-xs font-bold uppercase text-center border border-slate-700">Indígena</th>
+                                        <th class="p-3 text-xs font-bold uppercase text-center border border-slate-700">Não Inf.</th>
+                                        <th class="p-3 text-xs font-bold uppercase text-center border border-slate-700 bg-slate-700">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach(['M' => 'Masculino', 'F' => 'Feminino', 'Outros' => 'Outros / N.D.'] as $key => $label)
+                                        <tr class="hover:bg-slate-50 transition-colors">
+                                            <td class="p-3 text-xs font-bold text-slate-700 border border-slate-100">{{ $label }}</td>
+                                            <td class="p-3 text-sm text-center border border-slate-100">{{ $stats['sexo_raca'][$key]['branca'] }}</td>
+                                            <td class="p-3 text-sm text-center border border-slate-100">{{ $stats['sexo_raca'][$key]['preta'] }}</td>
+                                            <td class="p-3 text-sm text-center border border-slate-100">{{ $stats['sexo_raca'][$key]['parda'] }}</td>
+                                            <td class="p-3 text-sm text-center border border-slate-100">{{ $stats['sexo_raca'][$key]['amarela'] }}</td>
+                                            <td class="p-3 text-sm text-center border border-slate-100">{{ $stats['sexo_raca'][$key]['indigena'] }}</td>
+                                            <td class="p-3 text-sm text-center border border-slate-100">{{ $stats['sexo_raca'][$key]['nao_informado'] }}</td>
+                                            <td class="p-3 text-sm font-black text-center border border-slate-100 bg-slate-50">{{ array_sum($stats['sexo_raca'][$key]) }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                                <tfoot>
+                                    <tr class="bg-slate-100 font-black">
+                                        <td class="p-3 text-xs uppercase border border-slate-200">Total por Raça</td>
+                                        <td class="p-3 text-sm text-center border border-slate-200">{{ $stats['raca_cor']['branca'] }}</td>
+                                        <td class="p-3 text-sm text-center border border-slate-200">{{ $stats['raca_cor']['preta'] }}</td>
+                                        <td class="p-3 text-sm text-center border border-slate-200">{{ $stats['raca_cor']['parda'] }}</td>
+                                        <td class="p-3 text-sm text-center border border-slate-200">{{ $stats['raca_cor']['amarela'] }}</td>
+                                        <td class="p-3 text-sm text-center border border-slate-200">{{ $stats['raca_cor']['indigena'] }}</td>
+                                        <td class="p-3 text-sm text-center border border-slate-200">{{ $stats['raca_cor']['nao_informado'] }}</td>
+                                        <td class="p-3 text-sm text-center border border-slate-200 bg-emerald-100 text-emerald-800">{{ $totalAtendidos }}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
                     <!-- Tempo de Permanência (Saídas) -->
                     <div class="mt-12">
                         <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center">
@@ -293,8 +346,8 @@
                                             <tr class="border-b border-slate-100 hover:bg-slate-50/50">
                                                 <td class="p-3 text-sm text-slate-700 font-medium">{{ $saida['nome'] }}</td>
                                                 <td class="p-3 text-sm text-slate-600">
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
-                                                        {{ $saida['permanencia'] }} ({{ $saida['meses'] }} meses)
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">
+                                                        {{ $saida['permanencia'] }}
                                                     </span>
                                                 </td>
                                                 <td class="p-3 text-sm text-slate-500 italic">{{ $saida['motivo'] ?? 'Não informado' }}</td>
