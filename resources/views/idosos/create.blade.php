@@ -38,12 +38,12 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <x-input-label for="nome" :value="__('Nome Completo')" />
-                                    <x-text-input id="nome" name="nome" type="text" class="mt-1 block w-full" :value="old('nome')" required autofocus />
+                                    <x-text-input id="nome" name="nome" :isError="$errors->has('nome')" type="text" class="mt-1 block w-full" :value="old('nome')" required autofocus />
                                     <x-input-error class="mt-2" :messages="$errors->get('nome')" />
                                 </div>
                                 <div>
                                     <x-input-label for="sexo" :value="__('Sexo / Identidade de Gênero')" />
-                                    <x-select-input id="sexo" name="sexo" class="mt-1 block w-full" required>
+                                    <x-select-input id="sexo" name="sexo" :isError="$errors->has('sexo')" class="mt-1 block w-full" required>
                                         <option value="cis_f" {{ old('sexo') == 'cis_f' ? 'selected' : '' }}>Cisgênero Feminino</option>
                                         <option value="cis_m" {{ old('sexo') == 'cis_m' ? 'selected' : '' }}>Cisgênero Masculino</option>
                                         <option value="trans_f" {{ old('sexo') == 'trans_f' ? 'selected' : '' }}>Transgênero Feminino</option>
@@ -55,7 +55,7 @@
                                 </div>
                                 <div>
                                     <x-input-label for="raca_cor" :value="__('Raça / Cor')" />
-                                    <x-select-input id="raca_cor" name="raca_cor" class="mt-1 block w-full" required>
+                                    <x-select-input id="raca_cor" name="raca_cor" :isError="$errors->has('raca_cor')" class="mt-1 block w-full" required>
                                         <option value="branca" {{ old('raca_cor') == 'branca' ? 'selected' : '' }}>Branca</option>
                                         <option value="preta" {{ old('raca_cor') == 'preta' ? 'selected' : '' }}>Preta</option>
                                         <option value="parda" {{ old('raca_cor') == 'parda' ? 'selected' : '' }}>Parda</option>
@@ -67,7 +67,7 @@
                                 </div>
                                 <div>
                                     <x-input-label for="grau_dependencia" :value="__('Grau de Dependência')" />
-                                    <x-select-input id="grau_dependencia" name="grau_dependencia" class="mt-1 block w-full" required>
+                                    <x-select-input id="grau_dependencia" name="grau_dependencia" :isError="$errors->has('grau_dependencia')" class="mt-1 block w-full" required>
                                         <option value="I" {{ old('grau_dependencia') == 'I' ? 'selected' : '' }}>Grau I (Independente)</option>
                                         <option value="II" {{ old('grau_dependencia') == 'II' ? 'selected' : '' }}>Grau II (Dependência Leve/Moderada)</option>
                                         <option value="III" {{ old('grau_dependencia') == 'III' ? 'selected' : '' }}>Grau III (Dependência Grave/Total)</option>
@@ -76,7 +76,7 @@
                                 </div>
                                 <div>
                                     <x-input-label for="data_nascimento" :value="__('Data de Nascimento')" />
-                                    <x-text-input id="data_nascimento" name="data_nascimento" type="date" class="mt-1 block w-full" :value="old('data_nascimento')" required 
+                                    <x-text-input id="data_nascimento" name="data_nascimento" :isError="$errors->has('data_nascimento')" type="date" class="mt-1 block w-full" :value="old('data_nascimento')" required 
                                         onchange="calcularFaixaEtaria(this.value)" />
                                     <div id="faixa_etaria_display" class="mt-2 text-sm font-medium text-emerald-600 hidden">
                                         Categoria: <span id="faixa_etaria_texto"></span>
@@ -85,7 +85,7 @@
                                 </div>
                                 <div>
                                     <x-input-label for="data_admissao" :value="__('Data de Admissão')" />
-                                    <x-text-input id="data_admissao" name="data_admissao" type="date" class="mt-1 block w-full" :value="old('data_admissao', date('Y-m-d'))" required />
+                                    <x-text-input id="data_admissao" name="data_admissao" :isError="$errors->has('data_admissao')" type="date" class="mt-1 block w-full" :value="old('data_admissao', date('Y-m-d'))" required />
                                     <x-input-error class="mt-2" :messages="$errors->get('data_admissao')" />
                                 </div>
 
@@ -128,12 +128,12 @@
                                 </script>
                                 <div>
                                     <x-input-label for="cpf" :value="__('CPF (opcional)')" />
-                                    <x-text-input id="cpf" name="cpf" type="text" class="mt-1 block w-full" :value="old('cpf')" x-data x-mask="999.999.999-99" placeholder="000.000.000-00" />
+                                    <x-text-input id="cpf" name="cpf" :isError="$errors->has('cpf')" type="text" class="mt-1 block w-full" :value="old('cpf')" x-data x-mask="999.999.999-99" placeholder="000.000.000-00" />
                                     <x-input-error class="mt-2" :messages="$errors->get('cpf')" />
                                 </div>
                                 <div>
                                     <x-input-label for="nis" :value="__('Número NIS')" />
-                                    <x-text-input id="nis" name="nis" type="text" class="mt-1 block w-full" :value="old('nis')" x-data x-mask="999.99999.99-9" placeholder="000.00000.00-0" required />
+                                    <x-text-input id="nis" name="nis" :isError="$errors->has('nis')" type="text" class="mt-1 block w-full" :value="old('nis')" x-data x-mask="999.99999.99-9" placeholder="000.00000.00-0" required />
                                     <x-input-error class="mt-2" :messages="$errors->get('nis')" />
                                 </div>
                             </div>
@@ -145,12 +145,12 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <x-input-label for="contato_emergencia_nome" :value="__('Nome do Responsável')" />
-                                    <x-text-input id="contato_emergencia_nome" name="contato_emergencia_nome" type="text" class="mt-1 block w-full" :value="old('contato_emergencia_nome')" required />
+                                    <x-text-input id="contato_emergencia_nome" name="contato_emergencia_nome" :isError="$errors->has('contato_emergencia_nome')" type="text" class="mt-1 block w-full" :value="old('contato_emergencia_nome')" required />
                                     <x-input-error class="mt-2" :messages="$errors->get('contato_emergencia_nome')" />
                                 </div>
                                 <div>
                                     <x-input-label for="contato_emergencia_telefone" :value="__('Telefone de Contato')" />
-                                    <x-text-input id="contato_emergencia_telefone" name="contato_emergencia_telefone" type="text" class="mt-1 block w-full" :value="old('contato_emergencia_telefone')" required x-data x-mask="(99) 99999-9999" placeholder="(00) 00000-0000" />
+                                    <x-text-input id="contato_emergencia_telefone" name="contato_emergencia_telefone" :isError="$errors->has('contato_emergencia_telefone')" type="text" class="mt-1 block w-full" :value="old('contato_emergencia_telefone')" required x-data x-mask="(99) 99999-9999" placeholder="(00) 00000-0000" />
                                     <x-input-error class="mt-2" :messages="$errors->get('contato_emergencia_telefone')" />
                                 </div>
                             </div>

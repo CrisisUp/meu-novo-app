@@ -21,7 +21,7 @@
                     <form action="{{ route('relatorios.movimentacao') }}" method="GET" class="flex items-end gap-4">
                         <div>
                             <x-input-label for="mes" :value="__('Mês de Referência')" />
-                            <x-select-input id="mes" name="mes" class="mt-1 block w-full">
+                            <x-select-input id="mes" name="mes" :isError="$errors->has('mes')" class="mt-1 block w-full">
                                 @for ($m = 1; $m <= 12; $m++)
                                     <option value="{{ $m }}" {{ $mes == $m ? 'selected' : '' }}>
                                         {{ Carbon\Carbon::create()->month($m)->locale('pt_BR')->monthName }}
@@ -31,7 +31,7 @@
                         </div>
                         <div>
                             <x-input-label for="ano" :value="__('Ano')" />
-                            <x-select-input id="ano" name="ano" class="mt-1 block w-full">
+                            <x-select-input id="ano" name="ano" :isError="$errors->has('ano')" class="mt-1 block w-full">
                                 @for ($y = date('Y') - 5; $y <= date('Y'); $y++)
                                     <option value="{{ $y }}" {{ $ano == $y ? 'selected' : '' }}>{{ $y }}</option>
                                 @endfor

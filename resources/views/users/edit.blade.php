@@ -22,19 +22,19 @@
 
                         <div>
                             <x-input-label for="name" :value="__('Nome')" />
-                            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus placeholder="Nome completo do usuário" />
+                            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" :isError="$errors->has('name')" required autofocus placeholder="Nome completo do usuário" />
                             <x-input-error class="mt-2" :messages="$errors->get('name')" />
                         </div>
 
                         <div>
                             <x-input-label for="email" :value="__('E-mail')" />
-                            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required placeholder="Melhor e-mail do usuário" />
+                            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" :isError="$errors->has('email')" required placeholder="Melhor e-mail do usuário" />
                             <x-input-error class="mt-2" :messages="$errors->get('email')" />
                         </div>
 
                         <div>
                             <x-input-label for="role" :value="__('Cargo/Perfil de Acesso')" />
-                            <x-select-input id="role" name="role" class="mt-1 block w-full" required>
+                            <x-select-input id="role" name="role" class="mt-1 block w-full" :isError="$errors->has('role')" required>
                                 <option value="funcionario" {{ old('role', $user->role) == 'funcionario' ? 'selected' : '' }}>Funcionário (Leitura/Escrita)</option>
                                 <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Administrador (Acesso Total)</option>
                             </x-select-input>
@@ -46,13 +46,13 @@
                             
                             <div class="mb-4">
                                 <x-input-label for="password" :value="__('Nova Senha')" />
-                                <x-text-input id="password" name="password" type="password" class="mt-1 block w-full" placeholder="Deixe em branco para manter a atual" />
+                                <x-text-input id="password" name="password" type="password" class="mt-1 block w-full" :isError="$errors->has('password')" placeholder="Deixe em branco para manter a atual" />
                                 <x-input-error class="mt-2" :messages="$errors->get('password')" />
                             </div>
 
                             <div>
                                 <x-input-label for="password_confirmation" :value="__('Confirmar Nova Senha')" />
-                                <x-text-input id="password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" placeholder="Repita a nova senha" />
+                                <x-text-input id="password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" :isError="$errors->has('password_confirmation')" placeholder="Repita a nova senha" />
                                 <x-input-error class="mt-2" :messages="$errors->get('password_confirmation')" />
                             </div>
                         </div>

@@ -33,6 +33,7 @@
                 <x-text-input
                     id="password"
                     name="password"
+                    :isError="$errors->has('password')"
                     type="password"
                     class="mt-1 block w-3/4"
                     placeholder="{{ __('Password') }}"

@@ -124,42 +124,42 @@
                 </form>
             </div>
 
-            <div class="table-container">
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
                 <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="table-header">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                             <tr>
-                                <th class="table-header-cell">Registro</th>
-                                <th class="table-header-cell">Nome</th>
-                                <th class="table-header-cell">Idade / Faixa</th>
-                                <th class="table-header-cell">CPF / NIS</th>
-                                <th class="table-header-cell text-center w-36">Ações</th>
+                                <th scope="col" class="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Registro</th>
+                                <th scope="col" class="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Nome</th>
+                                <th scope="col" class="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Idade / Faixa</th>
+                                <th scope="col" class="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">CPF / NIS</th>
+                                <th scope="col" class="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest text-center w-36">Ações</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                             @forelse ($idosos as $idoso)
-                                <tr class="table-row {{ $idoso->data_desligamento ? 'bg-rose-50/30' : '' }}">
-                                    <td class="table-cell">
-                                        <span class="text-xs font-black text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors {{ $idoso->data_desligamento ? 'bg-rose-50/30 dark:bg-rose-900/10' : '' }}">
+                                    <td class="px-6 py-4">
+                                        <span class="text-xs font-black text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">
                                             {{ $idoso->codigo_registro }}
                                         </span>
                                     </td>
-                                    <td class="table-cell">
+                                    <td class="px-6 py-4">
                                         <div class="flex items-center">
-                                            <div class="h-12 w-12 flex-shrink-0 rounded-xl overflow-hidden bg-slate-100 flex items-center justify-center text-slate-400 mr-4 border border-slate-200 shadow-sm">
+                                            <div class="h-12 w-12 flex-shrink-0 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-600 mr-4 border border-slate-200 dark:border-slate-700 shadow-sm">
                                                 @if($idoso->foto)
-                                                    <img src="{{ asset('storage/' . $idoso->foto) }}" class="h-full w-full object-cover {{ $idoso->data_desligamento ? 'grayscale' : '' }}">
+                                                    <img src="{{ asset('storage/' . $idoso->foto) }}" class="h-full w-full object-cover {{ $idoso->data_desligamento ? 'grayscale' : '' }}" alt="">
                                                 @else
-                                                    <span class="text-xl font-black text-slate-600">{{ strtoupper(substr($idoso->nome, 0, 1)) }}</span>
+                                                    <span class="text-xl font-black text-slate-600 dark:text-slate-400" aria-hidden="true">{{ strtoupper(substr($idoso->nome, 0, 1)) }}</span>
                                                 @endif
                                             </div>
                                             <div class="flex flex-col">
-                                                <div class="text-xl font-black {{ $idoso->data_desligamento ? 'text-slate-500 line-through' : 'text-slate-900' }} leading-tight">
+                                                <div class="text-xl font-black {{ $idoso->data_desligamento ? 'text-slate-500 line-through' : 'text-slate-900 dark:text-slate-100' }} leading-tight">
                                                     {{ $idoso->nome }}
                                                 </div>
                                                 <div class="flex mt-2 space-x-2">
                                                 @if($idoso->data_desligamento)
-                                                    <span class="badge bg-rose-100 text-rose-800 border-rose-200 font-black">DESLIGADO: {{ $idoso->motivo_desligamento }}</span>
+                                                    <span class="badge bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200 border-rose-200 dark:border-rose-800 font-black">DESLIGADO: {{ $idoso->motivo_desligamento }}</span>
                                                 @else
                                                     @if(!$idoso->cpf)
                                                         <span class="badge badge-warning">CPF PENDENTE</span>
@@ -171,17 +171,17 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="table-cell">
-                                        <div class="text-lg text-slate-800 font-bold">{{ $idoso->idade }} anos</div>
+                                    <td class="px-6 py-4">
+                                        <div class="text-lg text-slate-800 dark:text-slate-200 font-bold">{{ $idoso->idade }} anos</div>
                                         <div class="mt-1">
                                             @php
                                                 $corFaixa = match($idoso->faixa_etaria) {
-                                                    '60-64 anos' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
-                                                    '65-69 anos' => 'bg-blue-50 text-blue-700 border-blue-200',
-                                                    '70-74 anos' => 'bg-indigo-50 text-indigo-700 border-indigo-200',
-                                                    '75-79 anos' => 'bg-purple-50 text-purple-700 border-purple-200',
-                                                    '80 anos ou mais' => 'bg-rose-50 text-rose-700 border-rose-200',
-                                                    default => 'bg-slate-50 text-slate-700 border-slate-200',
+                                                    '60-64 anos' => 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800',
+                                                    '65-69 anos' => 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800',
+                                                    '70-74 anos' => 'bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800',
+                                                    '75-79 anos' => 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800',
+                                                    '80 anos ou mais' => 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800',
+                                                    default => 'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700',
                                                 };
                                             @endphp
                                             <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border {{ $corFaixa }}">
@@ -189,18 +189,22 @@
                                             </span>
                                         </div>
                                     </td>
-                                    <td class="table-cell">
-                                        <div class="text-sm text-slate-600 font-bold font-mono">CPF: {{ $idoso->cpf_masked }}</div>
-                                        <div class="text-xs text-slate-800 font-black font-mono mt-1">NIS: {{ $idoso->nis_masked }}</div>
+                                    <td class="px-6 py-4">
+                                        <div class="text-sm text-slate-600 dark:text-slate-400 font-bold font-mono">CPF: {{ $idoso->cpf_masked }}</div>
+                                        <div class="text-xs text-slate-800 dark:text-slate-300 font-black font-mono mt-1">NIS: {{ $idoso->nis_masked }}</div>
                                     </td>
-                                    <td class="table-cell text-center">
+                                    <td class="px-6 py-4 text-center">
                                         <div class="flex items-center justify-center space-x-5">
-                                            <a href="{{ route('idoso.show', $idoso) }}" class="text-slate-400 hover:text-slate-700 transition-colors" title="Ver Prontuário">
+                                            <a href="{{ route('idoso.show', $idoso) }}" 
+                                                class="text-slate-400 hover:text-emerald-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded" 
+                                                aria-label="Ver prontuário de {{ $idoso->nome }}">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                                 </svg>
                                             </a>
-                                            <a href="{{ route('idoso.edit', $idoso) }}" class="text-slate-400 hover:text-slate-700 transition-colors" title="Editar">
+                                            <a href="{{ route('idoso.edit', $idoso) }}" 
+                                                class="text-slate-400 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded" 
+                                                aria-label="Editar cadastro de {{ $idoso->nome }}">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                                 </svg>

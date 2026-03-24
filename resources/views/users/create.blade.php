@@ -29,19 +29,19 @@
 
                         <div>
                             <x-input-label for="name" :value="__('Nome Completo')" />
-                            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name')" required autofocus placeholder="Nome do profissional" />
+                            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name')" :isError="$errors->has('name')" required autofocus placeholder="Nome do profissional" />
                             <x-input-error class="mt-2" :messages="$errors->get('name')" />
                         </div>
 
                         <div>
                             <x-input-label for="email" :value="__('E-mail Corporativo')" />
-                            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email')" required placeholder="email@exemplo.com" />
+                            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email')" :isError="$errors->has('email')" required placeholder="email@exemplo.com" />
                             <x-input-error class="mt-2" :messages="$errors->get('email')" />
                         </div>
 
                         <div>
                             <x-input-label for="role" :value="__('Cargo/Perfil de Acesso')" />
-                            <x-select-input id="role" name="role" class="mt-1 block w-full" required>
+                            <x-select-input id="role" name="role" class="mt-1 block w-full" :isError="$errors->has('role')" required>
                                 <option value="" disabled {{ old('role') ? '' : 'selected' }}>Selecione o perfil</option>
                                 <option value="funcionario" {{ old('role') == 'funcionario' ? 'selected' : '' }}>Funcionário (Leitura/Escrita)</option>
                                 <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Administrador (Acesso Total)</option>
@@ -52,13 +52,13 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <x-input-label for="password" :value="__('Senha de Acesso')" />
-                                <x-text-input id="password" name="password" type="password" class="mt-1 block w-full" required />
+                                <x-text-input id="password" name="password" type="password" class="mt-1 block w-full" :isError="$errors->has('password')" required />
                                 <x-input-error class="mt-2" :messages="$errors->get('password')" />
                             </div>
 
                             <div>
                                 <x-input-label for="password_confirmation" :value="__('Confirmar Senha')" />
-                                <x-text-input id="password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" required />
+                                <x-text-input id="password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" :isError="$errors->has('password_confirmation')" required />
                                 <x-input-error class="mt-2" :messages="$errors->get('password_confirmation')" />
                             </div>
                         </div>

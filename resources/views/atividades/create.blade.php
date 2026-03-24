@@ -22,20 +22,20 @@
 
                         <div>
                             <x-input-label for="nome" :value="__('Nome da Atividade/Oficina')" />
-                            <x-text-input id="nome" name="nome" type="text" class="mt-1 block w-full" placeholder="Ex: Fisioterapia em Grupo, Oficina de Música..." required autofocus />
+                            <x-text-input id="nome" name="nome" :isError="$errors->has('nome')" type="text" class="mt-1 block w-full" placeholder="Ex: Fisioterapia em Grupo, Oficina de Música..." required autofocus />
                             <x-input-error class="mt-2" :messages="$errors->get('nome')" />
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <x-input-label for="facilitador" :value="__('Facilitador/Responsável')" />
-                                <x-text-input id="facilitador" name="facilitador" type="text" class="mt-1 block w-full" placeholder="Nome do profissional" />
+                                <x-text-input id="facilitador" name="facilitador" :isError="$errors->has('facilitador')" type="text" class="mt-1 block w-full" placeholder="Nome do profissional" />
                                 <x-input-error class="mt-2" :messages="$errors->get('facilitador')" />
                             </div>
 
                             <div>
                                 <x-input-label for="dia_semana" :value="__('Dia da Semana')" />
-                                <x-select-input name="dia_semana" id="dia_semana" class="mt-1 block w-full" required>
+                                <x-select-input name="dia_semana" :isError="$errors->has('dia_semana')" id="dia_semana" class="mt-1 block w-full" required>
                                     <option value="segunda">Segunda-feira</option>
                                     <option value="terca">Terça-feira</option>
                                     <option value="quarta">Quarta-feira</option>
@@ -50,7 +50,7 @@
 
                         <div>
                             <x-input-label for="horario" :value="__('Horário de Início')" />
-                            <x-text-input id="horario" name="horario" type="time" class="mt-1 block w-full" required />
+                            <x-text-input id="horario" name="horario" :isError="$errors->has('horario')" type="time" class="mt-1 block w-full" required />
                             <x-input-error class="mt-2" :messages="$errors->get('horario')" />
                         </div>
 

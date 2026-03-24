@@ -14,8 +14,13 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
+    <body class="font-sans antialiased text-slate-900 selection:bg-emerald-100 dark:bg-slate-900 dark:text-slate-100" x-data="{ highContrast: localStorage.getItem('high-contrast') === 'true' }" :class="{ 'high-contrast': highContrast }">
+        <!-- Skip Link -->
+        <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-emerald-600 focus:text-white focus:font-bold focus:rounded-b-lg focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500">
+            Pular para o conteúdo principal
+        </a>
+
+        <div class="min-h-screen bg-gray-100 dark:bg-slate-950 transition-colors duration-200">
             @include('layouts.navigation')
 
             <!-- Page Heading -->
@@ -33,7 +38,7 @@
             @endisset
 
             <!-- Page Content -->
-            <main>
+            <main id="main-content" tabindex="-1" class="focus:outline-none">
                 {{ $slot }}
             </main>
         </div>

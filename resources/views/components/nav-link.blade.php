@@ -7,6 +7,6 @@ $classes = ($active ?? false)
 @endphp
 
 
-<a {{ $attributes->merge(['class' => $classes]) }}>
+<a {{ ($active ?? false) ? 'aria-current=page' : '' }} {{ $attributes->merge(['class' => $classes]) }}>
     {{ $slot }}
 </a>

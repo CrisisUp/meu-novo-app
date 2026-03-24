@@ -1,40 +1,40 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+<nav x-data="{ open: false }" class="bg-white border-b border-gray-100 dark:bg-slate-900 dark:border-slate-800" role="navigation" aria-label="Menu principal">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                    <a href="{{ route('dashboard') }}" aria-label="Ir para o Painel Inicial">
+                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-emerald-500" />
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" aria-label="Painel de Controle">
                         {{ __('Painel') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('idoso.index')" :active="request()->routeIs('idoso.*')">
+                    <x-nav-link :href="route('idoso.index')" :active="request()->routeIs('idoso.*')" aria-label="Gerenciar Idosos">
                         {{ __('Idosos') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('atividade.index')" :active="request()->routeIs('atividade.*')">
+                    <x-nav-link :href="route('atividade.index')" :active="request()->routeIs('atividade.*')" aria-label="Gerenciar Oficinas e Atividades">
                         {{ __('Atividades') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('frequencia.index')" :active="request()->routeIs('frequencia.*')">
+                    <x-nav-link :href="route('frequencia.index')" :active="request()->routeIs('frequencia.*')" aria-label="Registrar Frequência Diária">
                         {{ __('Frequência') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('encaminhamento.index')" :active="request()->routeIs('encaminhamento.*')">
+                    <x-nav-link :href="route('encaminhamento.index')" :active="request()->routeIs('encaminhamento.*')" aria-label="Gerenciar Encaminhamentos">
                         {{ __('Encaminhamentos') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('relatorios.movimentacao')" :active="request()->routeIs('relatorios.*')">
+                    <x-nav-link :href="route('relatorios.movimentacao')" :active="request()->routeIs('relatorios.*')" aria-label="Relatórios de Controle Social">
                         {{ __('Relatórios') }}
                     </x-nav-link>
                     @can('admin-access')
-                        <x-nav-link :href="route('user.index')" :active="request()->routeIs('user.*')">
+                        <x-nav-link :href="route('user.index')" :active="request()->routeIs('user.*')" aria-label="Gerenciar Equipe">
                             {{ __('Equipe') }}
                         </x-nav-link>
-                        <x-nav-link :href="route('admin.logs.index')" :active="request()->routeIs('admin.logs.*')">
+                        <x-nav-link :href="route('admin.logs.index')" :active="request()->routeIs('admin.logs.*')" aria-label="Logs de Auditoria">
                             {{ __('Logs') }}
                         </x-nav-link>
                     @endcan
@@ -42,7 +42,16 @@
             </div>
 
             <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
+            <div class="hidden sm:flex sm:items-center sm:ms-6 space-x-4">
+                <!-- Botão Alto Contraste -->
+                <button @click="highContrast = !highContrast; localStorage.setItem('high-contrast', highContrast)" 
+                    class="p-2 text-slate-400 hover:text-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-lg transition-colors"
+                    aria-label="Alternar Alto Contraste">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
+
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">

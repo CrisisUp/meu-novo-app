@@ -12,7 +12,7 @@
             </h2>
             <div class="flex items-center space-x-4">
                 <form action="{{ route('frequencia.index') }}" method="GET" class="flex items-center space-x-2">
-                    <x-text-input type="date" name="data" value="{{ $data }}" class="!py-1.5" onchange="this.form.submit()" />
+                    <x-text-input type="date" name="data" :isError="$errors->has('data')" value="{{ $data }}" class="!py-1.5" onchange="this.form.submit()" />
                 </form>
             </div>
         </div>

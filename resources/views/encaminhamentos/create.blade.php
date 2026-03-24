@@ -38,14 +38,14 @@
                             <!-- Destino -->
                             <div>
                                 <x-input-label for="instituicao_destino" :value="__('Instituição de Destino')" />
-                                <x-text-input id="instituicao_destino" name="instituicao_destino" type="text" class="mt-1 block w-full" placeholder="Ex: Hospital Municipal, CRAS, UPA..." required />
+                                <x-text-input id="instituicao_destino" name="instituicao_destino" :isError="$errors->has('instituicao_destino')" type="text" class="mt-1 block w-full" placeholder="Ex: Hospital Municipal, CRAS, UPA..." required />
                                 <x-input-error class="mt-2" :messages="$errors->get('instituicao_destino')" />
                             </div>
 
                             <!-- Especialidade -->
                             <div>
                                 <x-input-label for="especialidade" :value="__('Especialidade (opcional)')" />
-                                <x-text-input id="especialidade" name="especialidade" type="text" class="mt-1 block w-full" placeholder="Ex: Cardiologia, Dentista, Geral..." />
+                                <x-text-input id="especialidade" name="especialidade" :isError="$errors->has('especialidade')" type="text" class="mt-1 block w-full" placeholder="Ex: Cardiologia, Dentista, Geral..." />
                                 <x-input-error class="mt-2" :messages="$errors->get('especialidade')" />
                             </div>
                         </div>
@@ -54,7 +54,7 @@
                             <!-- Data -->
                             <div>
                                 <x-input-label for="data_encaminhamento" :value="__('Data do Encaminhamento')" />
-                                <x-text-input id="data_encaminhamento" name="data_encaminhamento" type="date" class="mt-1 block w-full" value="{{ date('Y-m-d') }}" required />
+                                <x-text-input id="data_encaminhamento" name="data_encaminhamento" :isError="$errors->has('data_encaminhamento')" type="date" class="mt-1 block w-full" value="{{ date('Y-m-d') }}" required />
                                 <x-input-error class="mt-2" :messages="$errors->get('data_encaminhamento')" />
                             </div>
 
