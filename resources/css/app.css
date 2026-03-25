@@ -5,6 +5,9 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
+/* Ativa o modo escuro baseado na classe .dark no HTML (Tailwind v4) */
+@variant dark (&:where(.dark, .dark *));
+
 @theme {
     /* Fontes */
     --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
@@ -28,41 +31,41 @@
     }
     body {
         /* Fundo um pouco mais "firme" */
-        @apply bg-slate-100 text-slate-900 leading-relaxed;
+        @apply bg-slate-100 text-slate-900 leading-relaxed dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200;
     }
 }
 
 @layer components {
     /* Layout */
     .main-container {
-        @apply flex flex-col min-h-screen bg-slate-100;
+        @apply flex flex-col min-h-screen bg-slate-100 dark:bg-slate-950;
     }
 
     /* Botões com Cores Sólidas e Fortes */
     .btn-primary {
-        @apply inline-flex items-center px-6 py-3 bg-slate-900 border-2 border-slate-900 rounded-xl font-black text-sm text-white uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95;
+        @apply inline-flex items-center px-6 py-3 bg-slate-900 border-2 border-slate-900 rounded-xl font-black text-sm text-white uppercase tracking-widest hover:bg-black dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700 transition-all shadow-lg active:scale-95;
     }
 
     .btn-success {
-        @apply inline-flex items-center px-6 py-3 bg-emerald-800 border-2 border-emerald-900 rounded-xl font-black text-sm text-white uppercase tracking-widest hover:bg-emerald-950 transition-all shadow-lg active:scale-95;
+        @apply inline-flex items-center px-6 py-3 bg-emerald-800 border-2 border-emerald-900 rounded-xl font-black text-sm text-white uppercase tracking-widest hover:bg-emerald-950 dark:bg-emerald-700 dark:border-emerald-800 dark:hover:bg-emerald-600 transition-all shadow-lg active:scale-95;
     }
 
     /* Alertas Vibrantes */
     .alert-success {
-        @apply p-5 mb-8 text-lg text-white rounded-xl bg-emerald-700 border-2 border-emerald-900 shadow-md font-bold;
+        @apply p-5 mb-8 text-lg text-white rounded-xl bg-emerald-700 border-2 border-emerald-900 dark:bg-emerald-900/50 dark:border-emerald-700 shadow-md font-bold;
     }
 
     .alert-error {
-        @apply p-5 mb-8 text-lg text-white rounded-xl bg-red-700 border-2 border-red-900 shadow-md font-bold;
+        @apply p-5 mb-8 text-lg text-white rounded-xl bg-red-700 border-2 border-red-900 dark:bg-red-900/50 dark:border-red-700 shadow-md font-bold;
     }
 
     /* Tabela com Definição Clara */
     .table-container {
-        @apply w-full text-lg text-left text-slate-800 bg-white shadow-xl border-2 border-slate-300 rounded-2xl overflow-hidden;
+        @apply w-full text-lg text-left text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 shadow-xl border-2 border-slate-300 dark:border-slate-800 rounded-2xl overflow-hidden;
     }
 
     .table-header {
-        @apply text-sm text-white uppercase bg-slate-800 font-black border-b-2 border-slate-900;
+        @apply text-sm text-white uppercase bg-slate-800 dark:bg-slate-950 font-black border-b-2 border-slate-900 dark:border-slate-800;
     }
 
     .table-header-cell {
@@ -70,11 +73,11 @@
     }
 
     .table-row {
-        @apply bg-white border-b-2 border-slate-100 hover:bg-emerald-50/50 transition-colors;
+        @apply bg-white dark:bg-slate-900 border-b-2 border-slate-100 dark:border-slate-800/50 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10 transition-colors;
     }
 
     .table-cell {
-        @apply px-8 py-6 text-slate-900 font-bold border-r border-slate-50 last:border-r-0;
+        @apply px-8 py-6 text-slate-900 dark:text-slate-100 font-bold border-r border-slate-50 dark:border-slate-800/50 last:border-r-0;
     }
 
     /* Badges com Cores Fortes (Sólidas) */
@@ -82,24 +85,24 @@
         @apply inline-flex items-center px-3 py-1 rounded-md text-[11px] font-black uppercase tracking-widest border-2 shadow-sm;
     }
     .badge-warning {
-        @apply bg-amber-400 text-amber-950 border-amber-600;
+        @apply bg-amber-400 text-amber-950 border-amber-600 dark:bg-amber-500/80 dark:text-amber-100 dark:border-amber-700;
     }
     .badge-info {
-        @apply bg-blue-600 text-white border-blue-800;
+        @apply bg-blue-600 text-white border-blue-800 dark:bg-blue-700/80 dark:border-blue-900;
     }
     .badge-success {
-        @apply bg-emerald-600 text-white border-emerald-800;
+        @apply bg-emerald-600 text-white border-emerald-800 dark:bg-emerald-700/80 dark:border-emerald-900;
     }
     .badge-danger {
-        @apply bg-red-600 text-white border-red-800;
+        @apply bg-red-600 text-white border-red-800 dark:bg-red-700/80 dark:border-red-900;
     }
 }
 
 /* Headers e Navigation com mais peso */
 nav {
-    @apply border-b-4 border-slate-200 shadow-md;
+    @apply border-b-4 border-slate-200 dark:border-slate-800 shadow-md;
 }
 
 header {
-    @apply border-b-2 border-slate-300;
+    @apply border-b-2 border-slate-300 dark:border-slate-800;
 }
