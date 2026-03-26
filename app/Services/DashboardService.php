@@ -85,9 +85,17 @@ class DashboardService
                 ->whereMonth('data_admissao', $date->month)
                 ->count();
 
+            // Considera tanto o desligamento oficial quanto a exclusão administrativa (soft delete)
             $discharges[] = Idoso::withTrashed()
-                ->whereYear('data_desligamento', $date->year)
-                ->whereMonth('data_desligamento', $date->month)
+                ->where(function($q) use ($date) {
+                    $q->where(function($sq) use ($date) {
+                        $sq->whereYear('data_desligamento', $date->year)
+                           ->whereMonth('data_desligamento', $date->month);
+                    })->orWhere(function($sq) use ($date) {
+                        $sq->whereYear('deleted_at', $date->year)
+                           ->whereMonth('deleted_at', $date->month);
+                    });
+                })
                 ->count();
         }
 

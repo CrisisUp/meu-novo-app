@@ -51,6 +51,11 @@ class UserController extends Controller
     {
         $data = $request->validated();
 
+        // Evitar que o próprio admin altere seu perfil e perca acesso acidentalmente
+        if (auth()->id() === $user->id && $data['role'] !== 'admin') {
+            return back()->with('error', 'Você não pode alterar seu próprio nível de acesso administrativo.');
+        }
+
         $user->name = $data['name'];
         $user->email = $data['email'];
         

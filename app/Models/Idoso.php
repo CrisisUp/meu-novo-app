@@ -110,7 +110,7 @@ class Idoso extends Model
                 // Busca o último código gerado para este ano específico com lock
                 $ultimoIdoso = DB::table('idosos')
                     ->where('codigo_registro', 'like', "CDI-{$ano}-%")
-                    ->orderBy('codigo_registro', 'desc')
+                    ->orderByRaw('LENGTH(codigo_registro) DESC, codigo_registro DESC')
                     ->lockForUpdate()
                     ->first();
 

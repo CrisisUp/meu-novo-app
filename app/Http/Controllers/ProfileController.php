@@ -42,11 +42,15 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        $user = $request->user();
+
+        if ($user->role === 'admin') {
+            return back()->with('error', 'Contas com perfil de administrador não podem ser excluídas por segurança.');
+        }
+
         $request->validateWithBag('userDeletion', [
             'password' => ['required', 'current_password'],
         ]);
-
-        $user = $request->user();
 
         Auth::logout();
 

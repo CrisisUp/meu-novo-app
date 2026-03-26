@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class IdosoRequest extends FormRequest
 {
@@ -24,8 +25,7 @@ class IdosoRequest extends FormRequest
         return [
             'nome' => 'required|string|max:255',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:10240',
-            // Valida que deve ter pelo menos 60 anos (nascido antes de 60 anos atrás a partir de hoje)
-            'data_nascimento' => 'required|date|before_or_equal:' . today()->subYears(60)->format('Y-m-d'),
+            'data_nascimento' => 'required|date|before:today',
             'sexo' => 'required|string|in:cis_m,cis_f,trans_m,trans_f,agenero,nao_declarado',
             'raca_cor' => 'required|string|in:branca,preta,parda,amarela,indigena,nao_informado',
             'grau_dependencia' => 'required|string|in:I,II,III',
@@ -33,8 +33,18 @@ class IdosoRequest extends FormRequest
             'data_admissao' => 'required|date',
             'data_desligamento' => 'nullable|date|after_or_equal:data_admissao',
             'motivo_desligamento' => 'nullable|string|max:255',
-            'cpf' => 'nullable|string|max:14|unique:idosos,cpf,' . $id,
-            'nis' => 'nullable|string|max:14|unique:idosos,nis,' . $id,
+            'cpf' => [
+                'nullable',
+                'string',
+                'max:14',
+                Rule::unique('idosos', 'cpf')->ignore($id)->whereNull('deleted_at')
+            ],
+            'nis' => [
+                'nullable',
+                'string',
+                'max:20',
+                Rule::unique('idosos', 'nis')->ignore($id)->whereNull('deleted_at')
+            ],
             'contato_emergencia_nome' => 'required|string|max:255',
             'contato_emergencia_telefone' => 'required|string|max:20',
             'alergias' => 'nullable|string',
@@ -49,7 +59,9 @@ class IdosoRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'data_nascimento.before_or_equal' => 'O idoso deve ter pelo menos 60 anos para ser cadastrado no CDI.',
+            'data_nascimento.before' => 'A data de nascimento deve ser anterior a hoje.',
+            'cpf.unique' => 'Este CPF já está cadastrado no sistema.',
+            'nis.unique' => 'Este NIS já está cadastrado no sistema.',
         ];
     }
 }

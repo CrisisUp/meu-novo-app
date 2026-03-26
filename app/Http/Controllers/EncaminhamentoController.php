@@ -24,9 +24,11 @@ class EncaminhamentoController extends Controller
             'profissional'
         ])
             ->when($search, function ($query, $search) {
-                return $query->whereHas('idoso', function ($q) use ($search) {
-                    $q->where('nome', 'like', "%{$search}%");
-                })->orWhere('instituicao_destino', 'like', "%{$search}%");
+                return $query->where(function($q) use ($search) {
+                    $q->whereHas('idoso', function ($sq) use ($search) {
+                        $sq->withTrashed()->where('nome', 'like', "%{$search}%");
+                    })->orWhere('instituicao_destino', 'like', "%{$search}%");
+                });
             })
             ->orderByDesc('data_encaminhamento')
             ->paginate(10);

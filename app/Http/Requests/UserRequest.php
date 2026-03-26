@@ -20,13 +20,15 @@ class UserRequest extends FormRequest
      */
     public function rules(): array
     {
+        $user = $this->route('user');
+        
         $rules = [
             'name' => 'required|string|max:255',
             'email' => [
                 'required',
                 'email',
                 'max:255',
-                $this->user ? Rule::unique('users')->ignore($this->user->id) : Rule::unique('users'),
+                $user ? Rule::unique('users')->ignore($user->id) : Rule::unique('users'),
             ],
             'role' => 'required|in:admin,funcionario',
         ];

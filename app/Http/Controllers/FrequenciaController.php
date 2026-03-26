@@ -69,16 +69,19 @@ class FrequenciaController extends Controller
         }
 
         $upsertData = $idosoIds->map(function ($id) use ($data, $presencas, $observacoes, $now, $authId) {
+            $status = isset($presencas[$id]) ? 'presente' : 'ausente';
             return [
                 'idoso_id' => $id,
                 'data' => $data,
-                'status' => isset($presencas[$id]) ? 'presente' : 'ausente',
+                'status' => $status,
                 'observacoes' => $observacoes[$id] ?? null,
                 'user_id' => $authId,
                 'created_at' => $now,
                 'updated_at' => $now,
-                // Mantemos entrada e saida como null aqui para não sobrescrever caso já existam via Upsert
-                // O Laravel Upsert exige que todas as colunas da tabela existam no array se não tiverem default
+                // Definimos horários padrão apenas para NOVOS registros de 'presente'
+                // Como não estão no 3º parâmetro do upsert, valores existentes NÃO são sobrescritos
+                'entrada' => $status == 'presente' ? '08:00:00' : null,
+                'saida' => $status == 'presente' ? '17:00:00' : null,
             ];
         })->toArray();
 

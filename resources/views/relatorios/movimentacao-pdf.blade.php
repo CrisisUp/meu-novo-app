@@ -42,24 +42,29 @@
         <thead>
             <tr>
                 <th rowspan="2">DISCRIMINAÇÃO</th>
-                <th colspan="2">60 a 64 ANOS</th>
-                <th colspan="2">65 a 69 ANOS</th>
-                <th colspan="2">70 a 74 ANOS</th>
-                <th colspan="2">75 a 79 ANOS</th>
-                <th colspan="2">80 ANOS OU MAIS</th>
+                <th colspan="3">60 a 64 ANOS</th>
+                <th colspan="3">65 a 69 ANOS</th>
+                <th colspan="3">70 a 74 ANOS</th>
+                <th colspan="3">75 a 79 ANOS</th>
+                <th colspan="3">80 ANOS OU MAIS</th>
                 <th rowspan="2">TOTAL GERAL</th>
             </tr>
             <tr>
                 <th>M</th>
                 <th>F</th>
+                <th>O</th>
                 <th>M</th>
                 <th>F</th>
+                <th>O</th>
                 <th>M</th>
                 <th>F</th>
+                <th>O</th>
                 <th>M</th>
                 <th>F</th>
+                <th>O</th>
                 <th>M</th>
                 <th>F</th>
+                <th>O</th>
             </tr>
         </thead>
         <tbody>
@@ -75,21 +80,31 @@
             @foreach ($linhas as $index => $linha)
                 @php
                     $d = $linha['data'];
-                    $total = $d->m_60_64 + $d->f_60_64 + $d->m_65_69 + $d->f_65_69 + $d->m_70_74 + $d->f_70_74 + $d->m_75_79 + $d->f_75_79 + $d->m_80_mais + $d->f_80_mais;
+                    $total = array_sum((array)$d);
                 @endphp
                 <tr class="{{ $index == 3 ? 'total-row' : '' }}">
                     <td class="label-cell">{{ $linha['label'] }}</td>
                     <td>{{ $d->m_60_64 }}</td>
                     <td>{{ $d->f_60_64 }}</td>
+                    <td style="color: #999;">{{ $d->o_60_64 }}</td>
+                    
                     <td>{{ $d->m_65_69 }}</td>
                     <td>{{ $d->f_65_69 }}</td>
+                    <td style="color: #999;">{{ $d->o_65_69 }}</td>
+                    
                     <td>{{ $d->m_70_74 }}</td>
                     <td>{{ $d->f_70_74 }}</td>
+                    <td style="color: #999;">{{ $d->o_70_74 }}</td>
+                    
                     <td>{{ $d->m_75_79 }}</td>
                     <td>{{ $d->f_75_79 }}</td>
+                    <td style="color: #999;">{{ $d->o_75_79 }}</td>
+                    
                     <td>{{ $d->m_80_mais }}</td>
                     <td>{{ $d->f_80_mais }}</td>
-                    <td>{{ $total }}</td>
+                    <td style="color: #999;">{{ $d->o_80_mais }}</td>
+                    
+                    <td><strong>{{ $total }}</strong></td>
                 </tr>
             @endforeach
         </tbody>

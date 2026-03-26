@@ -63,7 +63,6 @@ class RelatorioMovimentacaoController extends Controller
             ->get();
 
         // 4. SALDO ATUAL (Balanço matemático: Anterior + Entradas - Saídas)
-        // Isso deve ser igual aos ativos no último dia do mês.
         $idososSaldoAtual = Idoso::withTrashed()
             ->where('data_admissao', '<=', $dataFim->toDateString())
             ->where(function($q) use ($dataFim) {
@@ -77,7 +76,6 @@ class RelatorioMovimentacaoController extends Controller
             ->get();
 
         // 5. TOTAL ATENDIDOS (Quem passou pelo serviço em qualquer momento do mês)
-        // Regra: Estava ativo no início do mês OU entrou durante o mês.
         $usuariosAtendidos = Idoso::withTrashed()
             ->where('data_admissao', '<=', $dataFim->toDateString())
             ->where(function($q) use ($dataInicio) {
@@ -108,15 +106,16 @@ class RelatorioMovimentacaoController extends Controller
             $nascimento = Carbon::parse($u->data_nascimento);
             $idadeNaEpoca = $nascimento->diffInYears($dataReferencia);
 
-            $isMasc = in_array($u->sexo, ['cis_m', 'trans_m']);
-            $prefixo = $isMasc ? 'm_' : 'f_';
+            if (in_array($u->sexo, ['cis_m', 'trans_m'])) $prefixo = 'm_';
+            elseif (in_array($u->sexo, ['cis_f', 'trans_f'])) $prefixo = 'f_';
+            else $prefixo = 'o_';
 
             if ($idadeNaEpoca >= 60 && $idadeNaEpoca <= 64) $chave = $prefixo . '60_64';
             elseif ($idadeNaEpoca >= 65 && $idadeNaEpoca <= 69) $chave = $prefixo . '65_69';
             elseif ($idadeNaEpoca >= 70 && $idadeNaEpoca <= 74) $chave = $prefixo . '70_74';
             elseif ($idadeNaEpoca >= 75 && $idadeNaEpoca <= 79) $chave = $prefixo . '75_79';
             elseif ($idadeNaEpoca >= 80) $chave = $prefixo . '80_mais';
-            else $chave = $prefixo . '60_64'; // Fallback para não sumir com o idoso da tabela se ele tiver 59 anos mas estiver no CDI
+            else $chave = $prefixo . '60_64'; // Fallback
 
             $res->$chave++;
         }
@@ -235,11 +234,11 @@ class RelatorioMovimentacaoController extends Controller
     private function getEmptyObject()
     {
         return (object) [
-            'm_60_64' => 0, 'f_60_64' => 0,
-            'm_65_69' => 0, 'f_65_69' => 0,
-            'm_70_74' => 0, 'f_70_74' => 0,
-            'm_75_79' => 0, 'f_75_79' => 0,
-            'm_80_mais' => 0, 'f_80_mais' => 0,
+            'm_60_64' => 0, 'f_60_64' => 0, 'o_60_64' => 0,
+            'm_65_69' => 0, 'f_65_69' => 0, 'o_65_69' => 0,
+            'm_70_74' => 0, 'f_70_74' => 0, 'o_70_74' => 0,
+            'm_75_79' => 0, 'f_75_79' => 0, 'o_75_79' => 0,
+            'm_80_mais' => 0, 'f_80_mais' => 0, 'o_80_mais' => 0,
         ];
     }
 }

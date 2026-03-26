@@ -49,13 +49,14 @@ class GerarCodigosRegistroIdosos extends Command
                 // Busca o último código gerado para este ano específico com bloqueio de leitura
                 $ultimoIdosoAno = Idoso::withTrashed()
                     ->where('codigo_registro', 'like', "CDI-$ano-%")
-                    ->orderBy('codigo_registro', 'desc')
+                    ->orderByRaw('LENGTH(codigo_registro) DESC, codigo_registro DESC')
                     ->lockForUpdate()
                     ->first();
 
                 $sequenciaisPorAno[$ano] = 1;
                 if ($ultimoIdosoAno) {
-                    $sequenciaisPorAno[$ano] = ((int) substr($ultimoIdosoAno->codigo_registro, -4)) + 1;
+                    $partes = explode('-', $ultimoIdosoAno->codigo_registro);
+                    $sequenciaisPorAno[$ano] = ((int) end($partes)) + 1;
                 }
             } else {
                 // Incrementa a partir do cache local deste lote
